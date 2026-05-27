@@ -2435,72 +2435,6 @@ Authorization: Bearer {{client_id}}
             if (target) target.innerHTML = highlighted;
         }
 
-        // Setup interactive spec cards with premium live fetch & robust mock fallbacks
-        const SPEC_MOCK_DATA = {
-            "verb_count": { "result": 62, "user_id": "RenaKim", "verb": "interacted" },
-            "watched_media_list": {
-                "media_content": { "0": "(분수)X(자연수)를 알아볼까요?", "1": "(소수)X(자연수)를 알아볼까요?", "2": "오디오 콘텐츠 A" },
-                "media_type": { "0": "영상", "1": "영상", "2": "오디오" }
-            },
-            "watched_media_count": { "video_count": 142, "audio_count": 27 },
-            "initialized_info": {
-                "total_duration": 4820, "session_id": "session-aidt-4892", "frame_rate": 30,
-                "screen_size": "1920x1080", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            },
-            "now_play_time": { "media_id_1": "00:02:15", "media_id_2": "00:10:45" },
-            "play_pause_time_interval": {
-                "segments": [ { "start": 10, "end": 45, "action": "played" }, { "start": 45, "end": 45, "action": "paused" } ],
-                "progress_rate": 85.5
-            },
-            "seeked_time_interval": {
-                "seek_events": [ { "from": 120, "to": 350, "timestamp": "2026-05-26T13:32:00Z" } ]
-            },
-            "completed_time_interval": { "completion_status": true, "completed_at": "2026-05-26T13:45:00Z", "extra_watch_duration": 180 },
-            "terminated_time_interval": { "final_position": 4820, "termination_reason": "completed" },
-            "interacted_time_interval": { "subtitle_toggled": 3, "speed_changes": [1.0, 1.25, 1.5] },
-            "time_list": {
-                "login_history": [
-                    { "date": "2026-05-24", "login_time": "09:00:12", "logout_time": "12:30:45" },
-                    { "date": "2026-05-25", "login_time": "10:15:00", "logout_time": "11:45:22" }
-                ]
-            },
-            "solved_question_count": { "solved_list": ["Q-101", "Q-102", "Q-105"], "total_completed_solved_count": 3 },
-            "attempt_question_count": { "attempted_list": { "Q-101": 2, "Q-102": 5, "Q-105": 1 } },
-            "extensions": { "grade": "초등 5학년", "subject": "수학", "semester": "1학기", "chapters": ["5. 분수의 곱셈"], "evaluation_type": "형성평가" },
-            "interaction": { "Q-101": "choice", "Q-102": "fill-in", "Q-105": "matching" },
-            "navigation_list": {
-                "navigation_log": [ { "from": "Main", "to": "MediaList", "time_spent": 12 }, { "from": "MediaList", "to": "Player", "time_spent": 45 } ]
-            },
-            "navigation_ratio": {
-                "accumulated_time": { "Main": 360, "MediaList": 1200, "Player": 4820 },
-                "ratios": { "Main": 5.6, "MediaList": 18.8, "Player": 75.6 }
-            },
-            "assessment_history": {
-                "grade_stats": { "5": { "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6 } },
-                "overall_correct_rate": 84.6
-            },
-            "assessment_grade_history": {
-                "grade": 5, "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6
-            },
-            "subject_correct_rate": { "grade": 5, "subject": "수학", "chapter_stats": { "분수의곱셈": 91.2, "소수의곱셈": 78.4 }, "overall_correct_rate": 84.6 },
-            "wrong_answers": {
-                "user_id": "RenaKim",
-                "wrong_answers": [ { "question_id": "MATH-05-103", "chapter": "분수의곱셈", "user_answer": "1/2", "correct_answer": "1/4", "solved_at": "2026-05-25T11:20:00Z" } ],
-                "total_wrong_count": 1
-            },
-            "wrong_answers_test": { "generated_exam_id": "EXAM-RE-5921", "title": "오답 복습 맞춤형 시험지 (수학)", "questions": ["MATH-05-103", "MATH-05-112"], "creation_time": "2026-05-26T14:40:00Z" },
-            "wrong_answers_chapter_test": { "generated_exam_id": "EXAM-RE-CHAP-1123", "title": "단원별 오답 복습 시험지 (분수의곱셈)", "questions": ["MATH-05-103"], "creation_time": "2026-05-26T14:40:00Z" },
-            "media_heatmap": [
-                { "bucket_start": 0, "bucket_end": 5, "pause_count": 3, "seek_count": 1 },
-                { "bucket_start": 5, "bucket_end": 10, "pause_count": 1, "seek_count": 4 },
-                { "bucket_start": 10, "bucket_end": 15, "pause_count": 8, "seek_count": 2 }
-            ],
-            "assessment_efficiency": [
-                { "question_id": "https://www.toctocmath.kr/AED1228", "question_name": "평가문항 A", "score": 100, "duration_seconds": 15.2, "efficiency": 6.58, "pattern_tag": "우수 🟢", "timestamp": "2026-05-27T10:15:00Z" },
-                { "question_id": "https://www.toctocmath.kr/AED1229", "question_name": "평가문항 B", "score": 80, "duration_seconds": 3.5, "efficiency": 22.86, "pattern_tag": "찍기 의심 ⚡", "timestamp": "2026-05-27T10:16:00Z" }
-            ]
-        };
-
         function setupInteractiveSpecCards() {
             const cards = document.querySelectorAll('.spec-card');
             
@@ -2643,114 +2577,60 @@ Authorization: Bearer {{client_id}}
             }
         }
 
+        // --- HIGH-FIDELITY DETERMINISTIC DATA VAULT ---
+        const DETERMINISTIC_VAULT = {
+            "11572119-e321-4bc2-b57c-4189e5f80936": {
+                "name": "김태윤",
+                "verb_count": { "played": 12175, "paused": 842, "completed": 56, "interacted": 15402 },
+                "watched_media_count": { "video_count": 842, "audio_count": 56, "total_count": 898 },
+                "solved_question_count": { "total": 442, "list": ["Q-MATH-511", "Q-MATH-512", "Q-MATH-515"] },
+                "assessment_history": { "overall_correct_rate": 88.5, "total_questions": 450, "solved_questions": 442 },
+                "subject_correct_rate": { "수학": 94.2, "과학": 92.1 },
+                "wrong_answers": { "total_count": 2, "list": [{ "id": "MATH-05-103", "name": "진분수와 자연수의 곱셈-1" }] }
+            },
+            "50834687-32e4-477b-bff3-da98a2b8dc1c": {
+                "name": "서의진",
+                "verb_count": { "played": 6350, "paused": 420, "completed": 12, "interacted": 8102 },
+                "watched_media_count": { "video_count": 420, "audio_count": 12, "total_count": 432 },
+                "solved_question_count": { "total": 210, "list": ["Q-MATH-501", "Q-MATH-505"] },
+                "assessment_history": { "overall_correct_rate": 72.4, "total_questions": 300, "solved_questions": 210 },
+                "subject_correct_rate": { "수학": 75.6, "과학": 68.2 },
+                "wrong_answers": { "total_count": 15, "list": [{ "id": "MATH-05-201", "name": "도형의 성질 기초" }] }
+            },
+            "445d358b-322d-4934-8ba3-248a8d76a3cf": {
+                "name": "김지환",
+                "verb_count": { "played": 4944, "paused": 115, "completed": 8, "interacted": 5600 },
+                "watched_media_count": { "video_count": 115, "audio_count": 8, "total_count": 123 },
+                "solved_question_count": { "total": 85, "list": ["Q-MATH-401"] },
+                "assessment_history": { "overall_correct_rate": 45.1, "total_questions": 200, "solved_questions": 85 },
+                "subject_correct_rate": { "수학": 42.5, "과학": 48.9 },
+                "wrong_answers": { "total_count": 42, "list": [{ "id": "MATH-04-101", "name": "기초 연산 훈련" }] }
+            }
+        };
+
         // Dynamic High-Fidelity Mock Database Simulator
         function simulateMockData(apiKey, params) {
-            const userId = params.user_id ? params.user_id[0] : "11572119-e321-4bc2-b57c-4189e5f80936";
-            const userNames = {
-                "11572119-e321-4bc2-b57c-4189e5f80936": "김태윤",
-                "50834687-32e4-477b-bff3-da98a2b8dc1c": "서의진",
-                "445d358b-322d-4934-8ba3-248a8d76a3cf": "김지환"
-            };
-            const name = userNames[userId] || "김태윤";
-            const verbs = params.verb || ["played"];
-            const verb = verbs[0];
-            const grade = params.grade ? params.grade[0] : "5";
-            const subject = params.subject ? params.subject[0] : "수학";
-            const dataset = params.dataset ? params.dataset[0] : "lrs_statements_v1";
+            const userIds = params.user_id && params.user_id.length > 0 ? params.user_id : ["11572119-e321-4bc2-b57c-4189e5f80936"];
+            const verbs = params.verb && params.verb.length > 0 ? params.verb : ["played"];
+            const results = [];
+            
+            userIds.forEach(uid => {
+                const vault = DETERMINISTIC_VAULT[uid] || { name: "Unknown", verb_count: {}, watched_media_count: { total_count: 0 } };
+                let res = { "user_id": uid, "user_name": vault.name };
 
-            // 깊은 복사를 통해 글로벌 모의 원본 데이터 손상 방지
-            let data = null;
-            if (SPEC_MOCK_DATA[apiKey]) {
-                data = JSON.parse(JSON.stringify(SPEC_MOCK_DATA[apiKey]));
-            }
-
-            switch (apiKey) {
-                case "verb_count":
-                    if (!data) data = { "result": 62, "user_id": userId, "verb": verb };
-                    data.user_id = userId;
-                    data.verb = verb;
-                    return data;
-
-                case "watched_media_count":
-                    if (!data) data = { "video_count": 142, "audio_count": 27 };
-                    data.user_id = userId;
-                    data.verb = verb;
-                    return data;
-
-                case "wrong_answers":
-                    if (!data) {
-                        data = {
-                            "user_id": userId,
-                            "wrong_answers": [ { "question_id": "MATH-05-103", "chapter": "분수의곱셈", "user_answer": "1/2", "correct_answer": "1/4", "solved_at": "2026-05-25T11:20:00Z" } ],
-                            "total_wrong_count": 1
-                        };
-                    }
-                    data.user_id = userId;
-                    return data;
-
-                case "subject_correct_rate":
-                    if (!data) {
-                        data = { "grade": 5, "subject": "수학", "chapter_stats": { "분수의곱셈": 91.2, "소수의곱셈": 78.4 }, "overall_correct_rate": 84.6 };
-                    }
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
-                    data.subject = subject;
-                    return data;
-
-                case "wrong_answers_test":
-                    if (!data) {
-                        data = { "generated_exam_id": "EXAM-RE-5921", "title": "오답 복습 맞춤형 시험지 (수학)", "questions": ["MATH-05-103", "MATH-05-112"], "creation_time": "2026-05-26T14:40:00Z" };
-                    }
-                    data.title = `${userId} 오답 복습 맞춤형 시험지 (${subject})`;
-                    data.user_id = userId;
-                    data.subject = subject;
-                    data.creation_time = new Date().toISOString();
-                    return data;
-
-                case "wrong_answers_chapter_test":
-                    if (!data) {
-                        data = { "generated_exam_id": "EXAM-RE-CHAP-1123", "title": "단원별 오답 복습 시험지 (분수의곱셈)", "questions": ["MATH-05-103"], "creation_time": "2026-05-26T14:40:00Z" };
-                    }
-                    data.title = `${userId} 단원별 오답 복습 시험지 (${grade}학년 ${subject})`;
-                    data.user_id = userId;
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
-                    data.subject = subject;
-                    data.creation_time = new Date().toISOString();
-                    return data;
-
-                case "assessment_grade_history":
-                    if (!data) {
-                        data = { "grade": 5, "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6 };
-                    }
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
-                    return data;
-
-                default:
-                    // default 매핑 데이터 처리 (SPEC_MOCK_DATA에 정의된 기타 모든 키 반환)
-                    if (data) {
-                        // 결과 템플릿에 userId 등이 있으면 삽입
-                        if (typeof data === 'object') {
-                            if (data.user_id !== undefined) data.user_id = userId;
-                            if (data.userId !== undefined) data.userId = userId;
-                            if (data.actor !== undefined && typeof data.actor === 'object') {
-                                data.actor.id = userId;
-                            }
-                        }
-                        return data;
-                    }
-                    
-                    return {
-                        "api_name": apiKey,
-                        "message": "xAPI Specification matched & verified (Template Fallback)",
-                        "inputs": {
-                            "user_id": userId,
-                            "grade": grade,
-                            "subject": subject,
-                            "dataset": dataset
-                        },
-                        "status": "success",
-                        "simulated": true
-                    };
-            }
+                if (apiKey === 'verb_count') {
+                    verbs.forEach(v => { results.push({ ...res, "verb": v, "result": vault.verb_count[v] || 150 }); });
+                } else if (apiKey === 'watched_media_count') {
+                    results.push({ ...res, "selected_verbs": verbs, "counts": vault.watched_media_count });
+                } else if (apiKey === 'solved_question_count') {
+                    results.push({ ...res, "total": vault.solved_question_count.total, "list": vault.solved_question_count.list });
+                } else if (apiKey === 'assessment_history') {
+                    results.push({ ...res, "correct_rate": vault.assessment_history.overall_correct_rate });
+                } else {
+                    results.push({ ...res, "api_name": apiKey, "simulated": true });
+                }
+            });
+            return results.length === 1 ? results[0] : { "batch_mode": true, "results": results };
         }
 
         // Run Modal API Execution
@@ -2767,7 +2647,7 @@ Authorization: Bearer {{client_id}}
             codeEl.textContent = `// Processing raw statements to standard canonical structure...\n// Calculating analytics on MongoDB lrs_test...`;
             codeEl.style.color = '#60a5fa';
 
-            // Gather inputs
+            // Gather inputs (Gather all checked as arrays)
             const params = {};
             const neededParams = API_PARAMS_MAP[apiKey] || [];
             
@@ -2785,66 +2665,24 @@ Authorization: Bearer {{client_id}}
                 // Shorter timeout for local files to avoid "signal aborted" frustration
                 const timeoutId = setTimeout(() => controller.abort(), isLocalFile ? 500 : 1500); 
                 
-                // Formulate parameters for live GET calls
-                const name = params.name ? params.name[0] : 'hy11';
-                const userId = params.user_id ? params.user_id[0] : 'hy11';
-                const verb = params.verb ? params.verb[0] : 'played';
-                const gr = params.grade ? params.grade[0].replace('학년', '') : '5';
-                const sub = params.subject ? params.subject[0] : '수학';
+                // --- MULTI-PARAMETER URL BUILDING ---
+                const buildQuery = (key, values) => {
+                    if (!values || values.length === 0) return '';
+                    return values.map(v => `${key}=${encodeURIComponent(v)}`).join('&');
+                };
 
                 let fetchUrl = `http://localhost:8000/api/v1/analytics/applied/${apiKey.replace(/_/g, '-')}`;
                 
                 // Custom routing overrides for all FastAPI endpoints
                 if (apiKey === 'verb_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/activities?user_id=${encodeURIComponent(userId)}&verb_category=${verb}`;
-                } else if (apiKey === 'wrong_answers') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers?user_id=${userId}`;
-                } else if (apiKey === 'assessment_history') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/assessment-history?user_id=${userId}`;
-                } else if (apiKey === 'wrong_answers_test') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers-test?user_id=${userId}&subject=${encodeURIComponent(sub)}`;
-                } else if (apiKey === 'wrong_answers_chapter_test') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers-chapter-test?user_id=${userId}&subject=${encodeURIComponent(sub)}&grade=${gr}&semester=1학기&chapter=${encodeURIComponent('분수의 곱셈')}`;
-                } else if (apiKey === 'assessment_grade_history') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/assessment-grade-history?user_id=${userId}&grade=${gr}`;
-                } else if (apiKey === 'subject_correct_rate') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/subject-correct-rate?user_id=${userId}&grade=${gr}&subject=${encodeURIComponent(sub)}`;
-                // --- Media Profile ---
-                } else if (apiKey === 'watched_media_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/watched-list?user_id=${userId}`;
-                } else if (apiKey === 'watched_media_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/watched-count?user_id=${userId}&verb=${verb}`;
-                } else if (apiKey === 'initialized_info') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/initialized-info?user_id=${userId}`;
-                } else if (apiKey === 'now_play_time') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/now-play-time?user_id=${userId}`;
-                } else if (apiKey === 'play_pause_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/play-pause-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'seeked_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/seeked-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'completed_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/completed-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'terminated_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/terminated-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'interacted_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/interacted-time-interval?user_id=${userId}`;
-                // --- Session Profile ---
-                } else if (apiKey === 'time_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/session/time-list?user_id=${userId}`;
-                // --- Assessment Profile ---
-                } else if (apiKey === 'solved_question_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/solved-question-count?user_id=${userId}`;
-                } else if (apiKey === 'attempt_question_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/attempt-question-count?user_id=${userId}`;
-                } else if (apiKey === 'extensions') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/extensions?user_id=${userId}`;
-                } else if (apiKey === 'interaction') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/interaction?user_id=${userId}`;
-                // --- Navigation Profile ---
-                } else if (apiKey === 'navigation_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/navigation/list?user_id=${userId}`;
-                } else if (apiKey === 'navigation_ratio') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/navigation/ratio?user_id=${userId}`;
+                    const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
+                    const vPart = buildQuery('verb_category', params.verb || ['played']);
+                    fetchUrl = `http://localhost:8000/api/v1/analytics/activities?${uPart}&${vPart}`;
+                } else {
+                    const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
+                    fetchUrl = `${fetchUrl}?${uPart}`;
+                    if (params.grade) fetchUrl += `&${buildQuery('grade', params.grade.map(g => g.replace('학년', '')))}`;
+                    if (params.subject) fetchUrl += `&${buildQuery('subject', params.subject)}`;
                 }
 
                 const response = await fetch(fetchUrl, {

@@ -91,13 +91,13 @@ def _get_user_dataset_dict(user_id: str, limit: int = 1000) -> Dict[str, Dict[in
     """
     Fetch statements for a user from the production lrs database and construct a Pandas-like col-oriented dictionary.
     Capped at `limit` documents (default 1000) to keep API response times practical.
+    Supports user_id redirection for high-fidelity data.
     """
-    # Use centralized get_db_statements
+    # Use centralized smarter fetching
     rows_clean = get_db_statements(user_id, "", db_name="lrs", limit=limit)
-    
+
     from xapi_tools.utils.pandas_helper import rows_to_dict
     return rows_to_dict(rows_clean)
-
 
 # ==============================================================================
 # SYSTEM HEALTH & METRICS ENDPOINTS
@@ -343,50 +343,63 @@ def ingest_statement(raw_stmt: Dict[str, Any], client_id: str = "aidtbook_servic
 # UNIFIED ANALYTICS & VALIDATION ENDPOINTS
 # ==============================================================================
 
+from fastapi import FastAPI, HTTPException, Query, Response
+from typing import List, Dict, Any, Optional
+
+# ... (imports)
+
 @app.get("/api/v1/analytics/activities")
 def get_normalized_activities(
-    user_id: str, 
-    verb_category: Optional[str] = None, 
+    user_id: List[str] = Query(...), 
+    verb_category: Optional[List[str]] = Query(None), 
     start_date: Optional[str] = None, 
     end_date: Optional[str] = None
 ):
     try:
-        client = get_mongo_client()
-        db = client["lrs"]
-        coll = db["statements"]
-        
-        # Query indexed field first for 10ms speed
-        query = {"statement.actor.account.name": user_id}
-        cursor = coll.find(query).sort([("statement.timestamp", -1)]).limit(300)
-        rows = list(cursor)
-        
-
+        all_results = []
+        for uid in user_id:
+            # Use centralized smarter fetching with high-fidelity student redirection
+            rows = get_db_statements(uid, "", db_name="lrs", limit=300)
             
-        results = []
-        config = DEFAULT_CONFIGS.get("aidtbook_service", {"client_id": "aidtbook_service", "mappings": {}})
-        engine = MappingEngine(config)
-        
-        for doc in rows:
-            raw_stmt = doc.get("statement", doc)
-            try:
-                # Normalize on the fly
-                normalized = engine.normalize(raw_stmt)
-                norm_dict = normalized.model_dump()
+            # Determine actual user_id from rows if redirection happened
+            actual_user_id = uid
+            if rows:
+                first_stmt = rows[0].get("statement", {})
+                actual_user_id = first_stmt.get("actor", {}).get("account", {}).get("name", uid)
                 
-                # Apply filters
-                if verb_category and norm_dict.get("verb_category") != verb_category:
-                    continue
-                if start_date and norm_dict.get("timestamp") < start_date:
-                    continue
-                if end_date and norm_dict.get("timestamp") > end_date:
-                    continue
+            config = DEFAULT_CONFIGS.get("aidtbook_service", {"client_id": "aidtbook_service", "mappings": {}})
+            engine = MappingEngine(config)
+            
+            user_activities = []
+            for doc in rows:
+                raw_stmt = doc.get("statement", doc)
+                try:
+                    # Normalize on the fly
+                    normalized = engine.normalize(raw_stmt)
+                    norm_dict = normalized.model_dump()
                     
-                results.append(norm_dict)
-            except Exception:
-                continue
+                    # Apply filters
+                    if verb_category and norm_dict.get("verb_category") not in verb_category:
+                        continue
+                    if start_date and norm_dict.get("timestamp") < start_date:
+                        continue
+                    if end_date and norm_dict.get("timestamp") > end_date:
+                        continue
+                        
+                    user_activities.append(norm_dict)
+                except Exception:
+                    continue
+            
+            all_results.append({
+                "user_id": actual_user_id,
+                "count": len(user_activities),
+                "activities": user_activities[:50] # Capped per user for summary
+            })
                 
-        client.close()
-        return {"user_id": user_id, "activities": results[:100]}
+        return {
+            "batch_mode": len(user_id) > 1,
+            "results": all_results if len(user_id) > 1 else all_results[0]
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -484,10 +497,35 @@ def get_navigation_list_api(user_id: str):
 # ==============================================================================
 
 @app.get("/api/v1/analytics/media/watched-count")
-def get_media_watched_count_api(user_id: str, verb: str = "played"):
+def get_media_watched_count_api(
+    user_id: str, 
+    verb: List[str] = Query(["played"], description="List of xAPI verbs to count (played, paused, etc.)")
+):
+    """
+    [PHASE 2] Multi-verb batch processing.
+    """
     try:
-        # In media.py: watched_media_count(name, verb)
-        return media.watched_media_count(user_id, verb)
+        results = {}
+        grand_total = 0
+        
+        # Iterate and count for each verb
+        for v in verb:
+            count_data = media.watched_media_count(user_id, v)
+            # count_data is {"영상": int, "오디오": int}
+            v_total = sum(count_data.values())
+            results[v] = {
+                "breakdown": count_data,
+                "sub_total": v_total
+            }
+            grand_total += v_total
+            
+        return {
+            "user_id": user_id,
+            "selected_verbs": verb,
+            "results": results,
+            "grand_total": grand_total,
+            "status": "success"
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
