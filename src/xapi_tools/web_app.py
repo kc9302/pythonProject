@@ -732,16 +732,16 @@ def normalize_statement(req: NormalizeRequest):
 @app.get("/", response_class=HTMLResponse)
 def serve_sandbox_ui(response: Response):
     """
-    Dynamically loads and serves the interactive sandbox UI from xapi_sandbox.html.
+    Dynamically loads and serves the interactive sandbox UI from live_sandbox.html.
     """
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     try:
-        path = "xapi_sandbox.html"
+        path = "live_sandbox.html"
         if not os.path.exists(path):
             # Fallback pathing
-            path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "xapi_sandbox.html")
+            path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "live_sandbox.html")
             
         with open(path, "r", encoding="utf-8") as f:
             return f.read()

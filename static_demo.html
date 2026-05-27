@@ -2,15 +2,16 @@
 <!--
 ================================================================================
   xAPI Adapter Live Sandbox & Specification
-  File: xapi_sandbox.html
+  File: static_demo.html (Standalone Offline Version)
 ================================================================================
 
-  [2026-05-26] Engineering Log — Full Analytics Integration (Phase 2 Complete)
+  [2026-05-27] Engineering Log — Standalone Migration
   ============================================================================
 
   ## 개요
-  FastAPI 백엔드(web_app.py) + MongoDB lrs_test(1.15M 문서)와 완전 연동된
-  실시간 xAPI Analytics Sandbox UI. 모든 카드 클릭 → 실 API 호출 → 라이브 JSON 반환.
+  완전 독립형(Standalone) xAPI Analytics Sandbox 데모.
+  이 파일은 서버나 DB 연결 없이 브라우저에서 단독으로 동작하며, 모든 수치 연산은
+  내장된 Mock Data Simulator(JS)를 통해 시뮬레이션됩니다.
 
   ## 백엔드 (src/xapi_tools/web_app.py)
   ─────────────────────────────────────────
@@ -1043,9 +1044,9 @@
                 <span class="material-symbols-rounded">analytics</span> LRS 데이터 신뢰도 진단
             </button>
         </div>
-        <div class="status-badge">
-            <span class="status-dot"></span>
-            LIVE SYNC ACTIVE
+        <div class="status-badge" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.25); color: #fbbf24;">
+            <span class="status-dot" style="background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: pulse 1.8s infinite;"></span>
+            🟠 OFFLINE DEMO (No Server/No DB)
         </div>
     </header>
 
@@ -1139,6 +1140,29 @@
                     </div>
                 </div>
                 
+                <!--
+                ================================================================
+                [ENGINEERING LOGS (COMMENTED OUT FROM SCREEN)]
+                ================================================================
+                [2026-05-27] Engineering Log
+                - 대용량 운영 DB(7억 4,377만 건 lrs.statements) 전환 및 최적화 완료.
+                - 초고속 무부하 실시간 DB 진단 API (/api/v1/diagnostics/profile) 설계 및 탑재.
+                  * O(1) metadata 크기 측정 (estimated_document_count) 적용.
+                  * stored_-1 인덱스를 통한 최신 5,000건 초고속 역순 표본 스캔 및 Python 메모리 분류 적용.
+                  * 6대 프리셋 계정의 정보를 단일 `$match` & `$group` 인덱싱 집계로 튜닝하여 1.62초 -> 0.22초로 응답 최적화.
+                - 치명적 타임아웃 및 장애 예방 패치 완료:
+                  * 인덱스가 존재하지 않는 `statement.actor.name` Fallback 역방향 스캔 쿼리를 백엔드에서 전면 차단.
+                  * 운영 DB 내 `context` 필드 누락(NoneType) 도큐먼트 패턴 방어를 위한 예외 복구 디펜스 코딩 전면 적용 (media.py, assessment.py, applied.py).
+                - 대시보드 화면 연동 마크업 버그 수정:
+                  * spec-tab의 닫히지 않았던 div 2개 태그 밸런스 패치 완료 (Tab 3 노출 장애 원인 해결).
+                  * http-code-display 렌더링 누락으로 인한 window.onload JS 에러 및 화면 먹통 버그 해결 완료 (pre container 추가 수립).
+
+                [2026-05-26] Engineering Log
+                - MongoDB 분석 인사이트: 115만 건의 실데이터 중 99.9%가 aidtbook.kr의 미디어 재생 프로파일이며, hy.com 및 lecognizer.com 등의 서로 다른 Verb URI들이 혼재되어 있습니다. 이 샌드박스는 이 상이한 데이터들을 완벽하게 하나의 모델로 통합하여 동작시킵니다.
+                - 아키텍처 다이어그램 크기 고정 및 정렬 패치 완료: 화면 해상도나 창 크기 변화와 무관하게 다이어그램이 찌그러지거나 잘리지 않도록 핵심 가로폭을 600px로 완전히 고정하고, 3개 컬럼을 각각 200px 너비로 절대 정렬했습니다. 이에 맞춰 연결선 SVG 경로도 100px / 300px / 500px 정중앙 좌표로 영구 고정되어 어떤 화면에서도 완벽한 대칭을 유지합니다.
+                ================================================================
+                -->
+
                 <div class="spec-section">
                     <h2>
                         <span class="material-symbols-rounded">schema</span>
@@ -2172,123 +2196,67 @@
             }
         }
 
-        // LOAD LIVE DB DIAGNOSTICS & AUDIT INFRASTRUCTURE (Demo Hybrid Mode)
+        // LOAD STATIC DB DIAGNOSTICS (Standalone Version)
         async function loadLiveDiagnostics() {
             const tbody = document.getElementById('live-preset-tbody');
             const statusBadge = document.getElementById('live-audit-status');
             
             if (!tbody || !statusBadge) return;
             
-            // Set loading state
+            // Instantly show mock diagnostic data
+            document.getElementById('lrs-count-val').innerHTML = `743,771,916 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
+            document.getElementById('lrs-test-count-val').innerHTML = `1,152,116 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
+            document.getElementById('kt-lrs-count-val').innerHTML = `3,699 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
+            
+            statusBadge.style.color = '#f59e0b';
+            statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+            statusBadge.innerHTML = `<span style="width: 6px; height: 6px; background: #f59e0b; border-radius:50%;"></span>🟡 오프라인 데모 모드 (Mock)`;
+            
+            // Render offline mock fallback data (Verified real-time profiling stats)
             tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="padding: 1.5rem; text-align: center; color: var(--primary-accent);">
-                        <div style="display:flex; justify-content:center; align-items:center; gap:0.5rem;">
-                            <span class="material-symbols-rounded animate-spin">sync</span>
-                            MongoDB 생산 DB 인덱스 스캔 및 실시간 진단 집계 중...
-                        </div>
-                    </td>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
+                    <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">김태윤</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">11572119-e321-4bc2-b57c-4189e5f80936</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">12,175 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">16 종</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
+                    <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">서의진</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">50834687-32e4-477b-bff3-da98a2b8dc1c</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">6,350 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">17 종</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
+                    <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">김지환</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">445d358b-322d-4934-8ba3-248a8d76a3cf</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">4,944 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">18 종</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
+                    <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">난학생이다</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">04d9de63-a28c-413f-8ecd-2966241ae6c4</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">12,091 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">16 종</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
+                    <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">student-02</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">f0cbe3a6-9b48-4b9a-b342-e0d02dd8f1f3</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">1,609 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">15 종</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
+                    <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
+                    <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">학생001</td>
+                    <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">1655829b-df0f-40fe-a09f-f5d1452caf52</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">154 건</td>
+                    <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">11 종</td>
                 </tr>
             `;
-            
-            try {
-                const res = await fetch('http://localhost:8000/api/v1/diagnostics/profile');
-                if (!res.ok) throw new Error('Network response not ok');
-                const data = await res.json();
-                
-                if (data.status === 'success') {
-                    // 1. Update Database Metric Counters
-                    document.getElementById('lrs-count-val').innerHTML = `${data.databases.lrs.toLocaleString()} <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
-                    document.getElementById('lrs-test-count-val').innerHTML = `${data.databases.lrs_test.toLocaleString()} <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
-                    document.getElementById('kt-lrs-count-val').innerHTML = `${data.databases.kt_lrs.toLocaleString()} <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span>`;
-                    
-                    // 2. Update status badge
-                    statusBadge.style.color = '#34d399';
-                    statusBadge.style.background = 'rgba(52, 211, 153, 0.15)';
-                    statusBadge.innerHTML = `<span style="width: 6px; height: 6px; background: #34d399; border-radius:50%;"></span>🟢 실시간 진단 연결됨`;
-                    
-                    // 3. Render dynamic table rows
-                    let html = '';
-                    const metrics = data.actor_metrics;
-                    
-                    const list = [
-                        { name: '김태윤', type: 'Real', badge: '#10b981', bg: 'rgba(16, 185, 129, 0.03)' },
-                        { name: '서의진', type: 'Real', badge: '#10b981', bg: 'rgba(16, 185, 129, 0.03)' },
-                        { name: '김지환', type: 'Real', badge: '#10b981', bg: 'rgba(16, 185, 129, 0.03)' },
-                        { name: '난학생이다', type: 'Tester', badge: '#f59e0b', bg: 'rgba(245, 158, 11, 0.02)' },
-                        { name: 'student-02', type: 'Tester', badge: '#f59e0b', bg: 'rgba(245, 158, 11, 0.02)' },
-                        { name: '학생001', type: 'Tester', badge: '#f59e0b', bg: 'rgba(245, 158, 11, 0.02)' }
-                    ];
-                    
-                    list.forEach(item => {
-                        const m = metrics[item.name] || { count: 0, verbs_count: 0, account_id: '' };
-                        const typeLabel = item.type === 'Real' ? '🟢 진짜 학생' : '🟡 테스트 계정';
-                        
-                        html += `
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: ${item.bg};">
-                                <td style="padding: 0.6rem 0.75rem; color: ${item.badge}; font-weight: 700;">${typeLabel}</td>
-                                <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">${item.name}</td>
-                                <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">${m.account_id}</td>
-                                <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">${m.count.toLocaleString()} 건</td>
-                                <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">${m.verbs_count} 종</td>
-                            </tr>
-                        `;
-                    });
-                    
-                    tbody.innerHTML = html;
-                }
-            } catch (err) {
-                console.warn('Backend offline: using simulated high-fidelity mock fallback.', err);
-                statusBadge.style.color = '#f59e0b';
-                statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
-                statusBadge.innerHTML = `<span style="width: 6px; height: 6px; background: #f59e0b; border-radius:50%;"></span>🟡 오프라인 데모 모드`;
-                
-                // Render offline mock fallback data (Verified real-time profiling stats)
-                tbody.innerHTML = `
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
-                        <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">김태윤</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">11572119-e321-4bc2-b57c-4189e5f80936</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">12,175 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">16 종</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
-                        <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">서의진</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">50834687-32e4-477b-bff3-da98a2b8dc1c</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">6,350 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">17 종</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(16, 185, 129, 0.03);">
-                        <td style="padding: 0.6rem 0.75rem; color: #10b981; font-weight: 700;">🟢 진짜 학생</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">김지환</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">445d358b-322d-4934-8ba3-248a8d76a3cf</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">4,944 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">18 종</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
-                        <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">난학생이다</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">04d9de63-a28c-413f-8ecd-2966241ae6c4</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">12,091 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">16 종</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
-                        <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">student-02</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">f0cbe3a6-9b48-4b9a-b342-e0d02dd8f1f3</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">1,609 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">15 종</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); background: rgba(245, 158, 11, 0.02);">
-                        <td style="padding: 0.6rem 0.75rem; color: #f59e0b; font-weight: 700;">🟡 테스트 계정</td>
-                        <td style="padding: 0.6rem 0.75rem; color: var(--text-main); font-weight: 600;">학생001</td>
-                        <td style="padding: 0.6rem 0.75rem; font-family: var(--font-code); color: var(--text-muted); font-size: 0.72rem;">1655829b-df0f-40fe-a09f-f5d1452caf52</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: #60a5fa;">154 건</td>
-                        <td style="padding: 0.6rem 0.75rem; text-align: right; font-weight: 700; color: var(--primary-accent);">11 종</td>
-                    </tr>
-                `;
-            }
         }
 
         // LOAD SELECTED PRESET
@@ -2431,8 +2399,7 @@ Authorization: Bearer {{client_id}}
                 return line;
             }).join('\n');
 
-            const target = document.getElementById('http-code-display');
-            if (target) target.innerHTML = highlighted;
+            document.getElementById('http-code-display').innerHTML = highlighted;
         }
 
         // Setup interactive spec cards with premium live fetch & robust mock fallbacks
@@ -2760,12 +2727,12 @@ Authorization: Bearer {{client_id}}
             const badgeEl = document.getElementById('modal-result-badge');
             const codeEl = document.getElementById('modal-result-code');
 
-            statusEl.textContent = '⚡ API 호출 전송 중...';
-            badgeEl.textContent = 'INGESTING';
-            badgeEl.className = 'result-badge result-badge-live';
+            statusEl.textContent = '⚡ 로컬 수치 연산 분석 중...';
+            badgeEl.textContent = 'PROCESSING';
+            badgeEl.className = 'result-badge result-badge-fallback';
             badgeEl.style.display = 'inline-block';
-            codeEl.textContent = `// Processing raw statements to standard canonical structure...\n// Calculating analytics on MongoDB lrs_test...`;
-            codeEl.style.color = '#60a5fa';
+            codeEl.textContent = `// Standardizing analytics canonical parameters...\n// Performing isolated local simulation...`;
+            codeEl.style.color = '#fbbf24';
 
             // Gather inputs
             const params = {};
@@ -2776,126 +2743,16 @@ Authorization: Bearer {{client_id}}
                 params[paramKey] = Array.from(checkedInputs).map(i => i.value);
             });
 
-            // Try Live API call if uvicorn server at port 8000 is active
-            try {
-                // If running as a local file, force a quick check or direct fallback
-                const isLocalFile = window.location.protocol === 'file:';
-                
-                const controller = new AbortController();
-                // Shorter timeout for local files to avoid "signal aborted" frustration
-                const timeoutId = setTimeout(() => controller.abort(), isLocalFile ? 500 : 1500); 
-                
-                // Formulate parameters for live GET calls
-                const name = params.name ? params.name[0] : 'hy11';
-                const userId = params.user_id ? params.user_id[0] : 'hy11';
-                const verb = params.verb ? params.verb[0] : 'played';
-                const gr = params.grade ? params.grade[0].replace('학년', '') : '5';
-                const sub = params.subject ? params.subject[0] : '수학';
-
-                let fetchUrl = `http://localhost:8000/api/v1/analytics/applied/${apiKey.replace(/_/g, '-')}`;
-                
-                // Custom routing overrides for all FastAPI endpoints
-                if (apiKey === 'verb_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/activities?user_id=${encodeURIComponent(userId)}&verb_category=${verb}`;
-                } else if (apiKey === 'wrong_answers') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers?user_id=${userId}`;
-                } else if (apiKey === 'assessment_history') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/assessment-history?user_id=${userId}`;
-                } else if (apiKey === 'wrong_answers_test') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers-test?user_id=${userId}&subject=${encodeURIComponent(sub)}`;
-                } else if (apiKey === 'wrong_answers_chapter_test') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/wrong-answers-chapter-test?user_id=${userId}&subject=${encodeURIComponent(sub)}&grade=${gr}&semester=1학기&chapter=${encodeURIComponent('분수의 곱셈')}`;
-                } else if (apiKey === 'assessment_grade_history') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/assessment-grade-history?user_id=${userId}&grade=${gr}`;
-                } else if (apiKey === 'subject_correct_rate') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/applied/subject-correct-rate?user_id=${userId}&grade=${gr}&subject=${encodeURIComponent(sub)}`;
-                // --- Media Profile ---
-                } else if (apiKey === 'watched_media_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/watched-list?user_id=${userId}`;
-                } else if (apiKey === 'watched_media_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/watched-count?user_id=${userId}&verb=${verb}`;
-                } else if (apiKey === 'initialized_info') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/initialized-info?user_id=${userId}`;
-                } else if (apiKey === 'now_play_time') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/now-play-time?user_id=${userId}`;
-                } else if (apiKey === 'play_pause_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/play-pause-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'seeked_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/seeked-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'completed_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/completed-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'terminated_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/terminated-time-interval?user_id=${userId}`;
-                } else if (apiKey === 'interacted_time_interval') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/media/interacted-time-interval?user_id=${userId}`;
-                // --- Session Profile ---
-                } else if (apiKey === 'time_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/session/time-list?user_id=${userId}`;
-                // --- Assessment Profile ---
-                } else if (apiKey === 'solved_question_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/solved-question-count?user_id=${userId}`;
-                } else if (apiKey === 'attempt_question_count') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/attempt-question-count?user_id=${userId}`;
-                } else if (apiKey === 'extensions') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/extensions?user_id=${userId}`;
-                } else if (apiKey === 'interaction') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/assessment/interaction?user_id=${userId}`;
-                // --- Navigation Profile ---
-                } else if (apiKey === 'navigation_list') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/navigation/list?user_id=${userId}`;
-                } else if (apiKey === 'navigation_ratio') {
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/navigation/ratio?user_id=${userId}`;
-                }
-
-                const response = await fetch(fetchUrl, {
-                    signal: controller.signal,
-                    headers: { 'Authorization': 'Bearer wickedstorm' }
-                });
-                clearTimeout(timeoutId);
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setTimeout(() => {
-                        statusEl.textContent = '🟢 [LIVE RESPONSE] API Server 호출 성공';
-                        badgeEl.textContent = 'LIVE SUCCESS';
-                        badgeEl.className = 'result-badge result-badge-live';
-                        codeEl.textContent = JSON.stringify(data, null, 2);
-                        codeEl.style.color = '#34d399';
-                    }, 200);
-                    return;
-                } else {
-                    const errText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errText}`);
-                }
-            } catch (err) {
-                // If the error is a connection failure or timeout, show simulated/standalone data
-                const isFail = err.name === 'AbortError' || err.message.includes('Failed to fetch') || err.message.includes('NetworkError');
-                
-                if (isFail) {
-                    setTimeout(() => {
-                        statusEl.textContent = '🟡 [STANDALONE MODE] 서버 연결 없음 - 샘플 데이터를 표시합니다.';
-                        badgeEl.textContent = 'LOCAL SAMPLE';
-                        badgeEl.className = 'result-badge result-badge-fallback';
-                        
-                        // Show simulated data instead of error
-                        const simulatedData = simulateMockData(apiKey, params);
-                        codeEl.textContent = JSON.stringify(simulatedData, null, 2);
-                        codeEl.style.color = '#fbbf24';
-                    }, 300);
-                    return;
-                }
-
-                setTimeout(() => {
-                    statusEl.textContent = '🔴 [API ERROR] 서버 응답 오류';
-                    badgeEl.textContent = 'ERROR';
-                    badgeEl.className = 'result-badge';
-                    badgeEl.style.backgroundColor = 'rgba(239, 68, 68, 0.2)';
-                    badgeEl.style.color = '#f87171';
-                    badgeEl.style.border = '1px solid rgba(239, 68, 68, 0.4)';
-                    codeEl.textContent = `// [ERROR DETECTED]\n// FastAPI 서버 연결에 실패했습니다.\n\nError Details:\n${err.message || err}`;
-                    codeEl.style.color = '#f87171';
-                }, 300);
-            }
+            // High fidelity Mock simulator execution (No fetch, 100ms micro motion delay)
+            const resultData = simulateMockData(apiKey, params);
+            
+            setTimeout(() => {
+                statusEl.textContent = '🟠 [OFFLINE SUCCESS] Sandbox Engine 수치 연산 완료';
+                badgeEl.textContent = 'SIM SUCCESS';
+                badgeEl.className = 'result-badge result-badge-fallback';
+                codeEl.textContent = JSON.stringify(resultData, null, 2);
+                codeEl.style.color = '#fbbf24';
+            }, 100); // UI micro delay for satisfaction
         }
 
         // INITIALIZE APP
