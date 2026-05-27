@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>xAPI 규격 분석 및 데이터 기획 툴 설계 가이드</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+        @page {
+            size: A4;
+            margin: 20mm 15mm;
+            background-color: #f8fafc;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Helvetica Neue', Arial, sans-serif;
+                font-size: 9pt;
+                color: #64748b;
+            }
+            @bottom-left {
+                content: "xAPI 규격 분석 및 데이터 기획 도구 설계서";
+                font-family: 'Helvetica Neue', Arial, sans-serif;
+                font-size: 9pt;
+                color: #64748b;
+            }
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            color: #334155;
+            line-height: 1.6;
+            font-size: 10.5pt;
+        }
+
+        h1, h2, h3, h4 {
+            color: #0f172a;
+            font-weight: 700;
+            margin-top: 0;
+            page-break-after: avoid;
+        }
+
+        h1 {
+            font-size: 22pt;
+            line-height: 1.3;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .subtitle {
+            font-size: 12pt;
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 15pt;
+            color: #1e40af;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 5px solid #0284c7;
+            padding-left: 10px;
+        }
+
+        h3 {
+            font-size: 12pt;
+            color: #0f172a;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-top: 5px;
+            margin-bottom: 15px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            page-break-inside: avoid;
+            background-color: #ffffff;
+        }
+
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 10px;
+            text-align: left;
+            font-size: 10pt;
+        }
+
+        th {
+            background-color: #1e3a8a;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f1f5f9;
+        }
+
+        .code-block {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #0f172a;
+            color: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 9.5pt;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            page-break-inside: avoid;
+        }
+
+        .highlight-box {
+            background-color: #f0fdf4;
+            border-left: 4px solid #16a34a;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
+        }
+        
+        .error-box {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 0 6px 6px 0;
+            font-size: 10pt;
+        }
+
+        .error-title {
+            font-weight: bold;
+            color: #991b1b;
+            margin-bottom: 4px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 8.5pt;
+            font-weight: bold;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .badge-required { background-color: #ef4444; }
+        .badge-recommended { background-color: #f59e0b; }
+        .badge-optional { background-color: #64748b; }
+
+        .layout-table {
+            width: 100%;
+            border: none;
+            background: transparent;
+            margin: 10px 0;
+        }
+        .layout-table td {
+            border: none;
+            padding: 10px;
+            vertical-align: top;
+            background: transparent;
+        }
+        
+        .ui-mockup {
+            border: 2px dashed #cbd5e1;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        
+        .drag-item {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #e0f2fe;
+            border: 1px solid #0284c7;
+            color: #0369a1;
+            border-radius: 4px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            font-size: 9.5pt;
+            font-weight: bold;
+        }
+
+        .drop-zone-error {
+            border: 2px solid #ef4444;
+            background-color: #fef2f2;
+            padding: 10px;
+            border-radius: 4px;
+            color: #b91c1c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>xAPI 규격 분석 및 데이터 기획 도구 설계 가이드</h1>
+    <div class="subtitle">xAPI-Communication 및 Error Codes 명세 기반 인터랙티브 저작 도구 기능 기획</div>
+
+    <h2>1. 개요 및 목적</h2>
+    <p>
+        본 문서는 ADL의 <strong>xAPI(Experience API) Specification(Communication 및 Error Codes)</strong>을 상세히 분석하고, 이를 바탕으로 데이터 기획자가 학습 데이터 모델을 직관적으로 설계할 수 있는 <strong>'웹 기반 xAPI 데이터 기획 및 검증 도구'</strong>의 기능적 설계 방향을 제시합니다.
+    </p>
+    <p>
+        데이터 기획자가 복잡한 JSON-LD 및 xAPI 스키마 규칙을 완벽히 숙지하지 않더라도, GUI 환경에서 드래그 앤 드롭 방식으로 Statement를 구성하고 실시간 유효성 검증(Validation) 피드백을 통해 완벽한 학습 데이터를 설계할 수 있도록 지원하는 시스템 개발을 목표로 합니다.
+    </p>
+
+    <h2>2. xAPI 통신 규격 및 에러 코드 분석 (LRS 명세)</h2>
+    <p>
+        LRS(Learning Record Store)와 학습용 에이전트 간의 데이터 교환 시, LRS는 전송된 Statement의 엄격한 유효성 검사를 수행하며 규칙 위반 시 HTTP 상태 코드를 통해 에러를 반환합니다. 설계할 기획 툴은 LRS 서버에 도달하기 전 <strong>전 단계(Client-side Validation)에서 이 규칙들을 사전에 완벽하게 검증</strong>해 주어야 합니다.
+    </p>
+
+    <h3>2.1 주요 HTTP 에러 코드 정의 및 툴 반영 전략</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">HTTP 상태 코드</th>
+                <th style="width: 40%;">LRS 발생 원인 및 규격 명세</th>
+                <th style="width: 40%;">기획 툴(기능) 구현 및 대응 전략</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>400 Bad Request</strong></td>
+                <td>
+                    - 필수 인자 누락 또는 유효하지 않은 인수<br>
+                    - 잘못 구성된 JSON 구조<br>
+                    - 스키마 요구사항 미준수 (데이터 타입 불일치 등)<br>
+                    - 대소문자 구분 오류 (Key의 CamelCase 위반)
+                </td>
+                <td>
+                    - 필수 필드 누락 시 <strong>실시간 붉은색 아웃라인 표시</strong><br>
+                    - JSON 구조 자동 생성 (인간 실수 원천 차단)<br>
+                    - 포맷 규칙(UUID, IRI, Mailto) 정규식 실시간 검증<br>
+                    - 사전 정의된 올바른 Key 값만 바인딩
+                </td>
+            </tr>
+            <tr>
+                <td><strong>401 Unauthorized</strong></td>
+                <td>인증이 필요하거나 제공된 자격 증명(Credential/API Key)이 거부된 경우.</td>
+                <td>툴 내 프로젝트 설정에서 LRS Endpoint 및 Basic Auth / OAuth 인증 정보 입력 및 테스트 연결 기능 제공.</td>
+            </tr>
+            <tr>
+                <td><strong>403 Forbidden</strong></td>
+                <td>자격 증명은 유효하나, 해당 토큰에 할당된 권한 권한(Scope)이 부족한 경우 (예: Read 전용 토큰으로 Write 시도).</td>
+                <td>기획 단계에서 권한 프로필(상태)을 시뮬레이션하여 권한 부족 시나리오 알림 컴포넌트 배치.</td>
+            </tr>
+            <tr>
+                <td><strong>404 Not Found</strong></td>
+                <td>요청한 자원(특정 Statement ID, State, Profile 등)이 존재하지 않는 경우.</td>
+                <td>조회(GET) 데이터 기획 시, 가상의 Mockup ID를 매핑하고 데이터 없을 시 UI 예외 처리 설계 지원.</td>
+            </tr>
+            <tr>
+                <td><strong>409 Conflict</strong></td>
+                <td>이미 존재하는 Statement ID에 대해 다른 데이터를 다시 PUT/POST 하여 데이터 무결성/불변성을 침해하는 경우.</td>
+                <td>UUIDv4 자동 생성 기능을 기본 활성화하여 ID 충돌을 원천 차단하고 불변성(Immutability) 규칙 안내 문구 노출.</td>
+            </tr>
+            <tr>
+                <td><strong>412 Precondition Failed</strong></td>
+                <td>State API 등에서 제공된 ETag 등 조건부 헤더 값이 서버 상태와 일치하지 않는 경우.</td>
+                <td>동적 데이터 업데이트 기획 시 동시성 제어를 위한 ETag 처리 가이드라인 및 필수 헤더 매핑 UI 구현.</td>
+            </tr>
+            <tr>
+                <td><strong>413 Request Entity Too Large</strong></td>
+                <td>LRS가 허용하는 최대 크기(또는 첨부파일 크기)를 초과하는 Statement를 전송한 경우.</td>
+                <td>첨부파일(Attachments) 추가 시 용량 제한(예: 5MB)을 미리 설정하고 초과 시 경고 팝업 발생.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. xAPI 핵심 데이터 구조 및 유효성 검증 규칙</h2>
+    <p>
+        기획 툴에서 드래그 앤 드롭으로 조합할 핵심 컴포넌트들의 데이터 규격 규칙입니다. 기획자가 필수값을 누락할 경우 <strong>붉은색(Red Border) 시각 효과</strong>와 함께 가이드를 제공해야 합니다.
+    </p>
+
+    <h3>3.1 Statement 구조 및 필수 항목 규칙</h3>
+    
+    <div style="display: table; width: 100%; margin: 10px 0;">
+        <div style="display: table-row;">
+            <div style="display: table-cell; width: 48%; padding-right: 2%;">
+                <strong>1. Actor (행위자) <span class="badge badge-required">필수</span></strong>
+                <ul>
+                    <li><code>objectType</code>: "Agent" 또는 "Group"</li>
+                    <li><strong>역기능 식별자(IFI)</strong> 중 정확히 1개만 필수 포함:
+                        <ul>
+                            <li><code>mbox</code>: 반드시 <code>mailto:</code>로 시작하는 이메일 형태</li>
+                            <li><code>mbox_sha1sum</code>: 이메일 SHA-1 해시값</li>
+                            <li><code>openid</code>: 유효한 OpenID IRI</li>
+                            <li><code>account</code>: <code>homePage</code>(IRI)와 <code>name</code>의 쌍</li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+            <div style="display: table-cell; width: 48%; padding-left: 2%;">
+                <strong>2. Verb (동사) <span class="badge badge-required">필수</span></strong>
+                <ul>
+                    <li><code>id</code>: 의미를 정의하는 유효한 <strong>IRI(URL/URI)</strong> 구조 형태여야 함.</li>
+                    <li><code>display</code>: 기획자 가독성을 위한 언어 맵(Language Map, 예: <code>{"ko-KR": "완료했다"}</code>).</li>
+                </ul>
+                <strong>3. Object (객체) <span class="badge badge-required">필수</span></strong>
+                <ul>
+                    <li><code>id</code>: 액티비티를 식별하는 고유 IRI.</li>
+                    <li><code>definition</code>: 타입, 명칭, 설명, 확장(Extensions) 정의.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <h3>3.2 부가 데이터 항목 규칙</h3>
+    <ul>
+        <li><strong>Result (결과) <span class="badge badge-optional">선택</span></strong>: 점수(Score: scaled, raw, min, max), 성공 여부(success), 완료 여부(completion), 소요시간(duration - ISO 8601 Duration 포맷 규칙 준수 필요) 포함 가능.</li>
+        <li><strong>Context (맥락) <span class="badge badge-optional">선택</span></strong>: 등록 ID(registration UUID), 상위/그룹 액티비티 관계(parent, grouping), 강사(instructor) 등 메타데이터 바인딩.</li>
+        <li><strong>Timestamp (발생 일시) <span class="badge badge-recommended">권장</span></strong>: ISO 8601 시간 포맷(예: <code>2026-05-27T12:43:00Z</code>) 준수 필수. 누락 시 LRS 저장 시점 자동 생성되나 기획 권장.</li>
+    </ul>
+
+    <h2>4. 데이터 기획자를 위한 사이트(기획 툴) UI/UX 및 기능 설계</h2>
+    <p>
+        제안하신 핵심 아이디어를 구체화하여, 데이터 기획자가 코딩 없이 드래그 앤 드롭 및 시각적 피드백을 통해 완벽한 xAPI 로깅 시나리오를 만들 수 있는 아키텍처 가이드라인입니다.
+    </p>
+
+    <h3>4.1 화면 레이아웃 구성 가이드</h3>
+    <div class="ui-mockup">
+        <div style="background-color: #1e3a8a; color: white; padding: 8px; font-weight: bold; margin-bottom: 10px; border-radius: 4px;">
+            xAPI Statement Visual Builder v1.0
+        </div>
+        <div style="display: table; width: 100%;">
+            <div style="display: table-row;">
+                <div style="display: table-cell; width: 30%; border-right: 1px solid #cbd5e1; padding-right: 10px;">
+                    <strong style="font-size: 9.5pt; color: #1e40af;">[1] 드래그 컴포넌트 패널</strong><br><br>
+                    <div class="drag-item">👤 Actor (행위자)</div>
+                    <div class="drag-item">🎬 Verb (동사)</div>
+                    <div class="drag-item">🎯 Object (대상)</div>
+                    <div class="drag-item">📊 Result (결과)</div>
+                    <div class="drag-item">🌐 Context (맥락)</div>
+                </div>
+                <div style="display: table-cell; width: 40%; border-right: 1px solid #cbd5e1; padding: 0 10px;">
+                    <strong style="font-size: 9.5pt; color: #1e40af;">[2] 캔버스 (Drop Zone)</strong><br><br>
+                    <div style="border: 1px dashed #22c55e; background-color: #f0fdf4; padding: 6px; margin-bottom: 6px; border-radius: 4px; font-size: 9pt;">
+                        ✅ Actor 결합 완료: 홍길동 (mailto:kildong@example.com)
+                    </div>
+                    <div class="drop-zone-error" style="font-size: 9pt;">
+                        ❌ Verb 필드가 비어있습니다! (필수값)
+                    </div>
+                    <div class="drop-zone-error" style="font-size: 9pt;">
+                        ❌ Object 필드가 비어있습니다! (필수값)
+                    </div>
+                </div>
+                <div style="display: table-cell; width: 30%; padding-left: 10px;">
+                    <strong style="font-size: 9.5pt; color: #1e40af;">[3] 실시간 생성 JSON 및 에러 목록</strong><br>
+                    <div class="error-box">
+                        <div class="error-title">⚠️ 데이터 설계 규칙 위반 2건</div>
+                        <span style="font-size: 8.5pt;">- Verb.id는 유효한 IRI(URL 형태) 규격을 준수해야 합니다.<br>- Object가 누락되면 LRS전송 시 <strong>400 Bad Request</strong>가 발생합니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>4.2 실시간 데이터 유효성 검사 (Validation) 로직 흐름</h3>
+    <ol>
+        <li><strong>컴포넌트 배치 단계</strong>: 기획자가 좌측 패널에서 <code>Actor</code>, <code>Verb</code>, <code>Object</code> 컴포넌트를 캔버스로 드래그하면, 메인 빌더 내부에 빈 인스턴스 템플릿이 JSON 형태로 자동 생성됩니다.</li>
+        <li><strong>실시간 포맷 체커 (Red-Highlight Trigger)</strong>:
+            <ul>
+                <li><strong>필수값 체크</strong>: <code>Actor</code>, <code>Verb</code>, <code>Object</code> 가 비어있거나 하위 세부 입력란이 채워지지 않은 경우, 해당 컴포넌트의 컨테이너 테두리를 <code>border: 2px solid #ef4444;</code> 및 <code>background-color: #fef2f2;</code>로 변경하여 시각적 경고 유도.</li>
+                <li><strong>데이터 타입 유효성 검사</strong>:
+                    <ul>
+                        <li><code>mbox</code> 입력 칸에 <code>mailto:</code> 접두사 없이 일반 이메일 주소(예: <code>user@test.com</code>)만 입력하면 정규식 필터링을 통해 빨간색 경고 메시지 표시 및 자동으로 <code>mailto:</code> 보정 처리 버튼 제공.</li>
+                        <li><code>Verb ID</code> 및 <code>Activity ID</code>에 유효하지 않은 URL 주소 포맷 입력 시 경고 처리.</li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+        <li><strong>프로파일(Profile) 및 사전 정의 딕셔너리 연동</strong>: 기획자가 텍스트를 직접 치지 않고, 미리 정의된 ADL 표준동사 딕셔너리(예: initialized, completed, passed, answered) 목록에서 드롭다운으로 선택할 수 있도록 구성하여 오탈자로 인한 규격 위반 사전 차단.</li>
+    </ol>
+
+    <div class="highlight-box">
+        <strong>💡 데이터 기획자용 사이트 핵심 셀링 포인트 (Value Proposition)</strong><br>
+        본 사이트는 단순한 JSON 에디터가 아닌, <strong>"LRS 시뮬레이션 기반 데이터 기획 샌드박스"</strong>입니다. 기획 단계에서 완성된 스키마 흐름을 시각적으로 확인하고 한 클릭으로 설계된 JSON 명세와 데이터 설계 기술서 문서를 자동 수출(Export)할 수 있어, 개발자와 기획자 간의 커문니케이션 비용을 90% 이상 절감할 수 있습니다.
+    </div>
+
+</body>
+</html>

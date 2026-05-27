@@ -1,0 +1,111 @@
+{
+  "month": "2025-08",
+  "errors": [
+    "error_badformat_login-type"
+  ],
+  "code_summary": {
+    "error_badformat_client-ip": 610,
+    "error_badformat_login-type": 131033,
+    "error_empty_session-id": 3532,
+    "error_missing_grade-sn": 2611,
+    "error_missing_login-type": 646,
+    "error_missing_school-id-sn": 2611
+  },
+  "category_summary": {
+    "format": 135175,
+    "missing": 5868
+  },
+  "doc": {
+    "statement.id": "d00d56ea-e054-4b68-830a-7a124750bc7c",
+    "statement.timestamp": "2025-08-01T00:00:27.492451Z",
+    "statement.stored": "2025-08-01T00:00:27.492Z",
+    "context.category": [
+      {
+        "id": "http://lecognizer.com/xapi/profiles/session",
+        "objectType": "Activity",
+        "definition": {
+          "name": {
+            "en-US": "Session Profile"
+          },
+          "description": {
+            "en-US": "Session Profile"
+          }
+        }
+      }
+    ],
+    "context.extensions": {
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sa3060246b75ba8edda3992a68850522-25ceffe9cf4f9d7c19a7684ea3f73485768f9f1db3c572e567db9896a9b93d20cd",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Safari/537.36",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "183.97.62.43",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type": "",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn": 1,
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn": 2227
+    }
+  },
+  "samples_by_category": {
+    "format": {
+      "errors": [
+        "error_badformat_login-type"
+      ],
+      "doc": {
+        "statement.id": "d00d56ea-e054-4b68-830a-7a124750bc7c",
+        "statement.timestamp": "2025-08-01T00:00:27.492451Z",
+        "statement.stored": "2025-08-01T00:00:27.492Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sa3060246b75ba8edda3992a68850522-25ceffe9cf4f9d7c19a7684ea3f73485768f9f1db3c572e567db9896a9b93d20cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Safari/537.36",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "183.97.62.43",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type": "",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn": 1,
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn": 2227
+        }
+      }
+    },
+    "missing": {
+      "errors": [
+        "error_badformat_login-type",
+        "error_missing_grade-sn",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "3180a2c1-0f10-468a-b86b-66c1388fd974",
+        "statement.timestamp": "2025-08-01T00:24:38.383985Z",
+        "statement.stored": "2025-08-01T00:24:38.384Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "s705116ae8399a8561ef4b56bd69174a-d7546a5e09d51817876b46e931d97dd8ebc574f90f0e902fd7327f0f08767968cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/28.0 Chrome/130.0.0.0 Safari/537.36",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "218.233.72.93",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type": ""
+        }
+      }
+    }
+  }
+}

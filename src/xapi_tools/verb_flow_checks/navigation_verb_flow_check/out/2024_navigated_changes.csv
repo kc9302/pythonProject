@@ -1,0 +1,12 @@
+month,status,present_count,added_count,removed_count,added_keys,removed_keys
+2024-02,ok,0,4,0,"statement.context.extensions,statement.context.extensions.http://lecognizer.com/xapi/profiles/navigation/1.0/extensions/context/referrer-id,statement.context.extensions.http://lecognizer.com/xapi/profiles/navigation/1.0/extensions/context/referrer-name,statement.context.extensions.http://lecognizer.com/xapi/profiles/navigation/1.0/extensions/context/referrer-type",
+2024-03,ok,0,0,0,,
+2024-04,ok,0,0,0,,
+2024-05,ok,0,0,0,,
+2024-06,ok,0,0,0,,
+2024-07,ok,0,0,0,,
+2024-08,ok,0,0,0,,
+2024-09,ok,0,0,0,,
+2024-10,ok,0,0,0,,
+2024-11,ok,0,0,0,,
+2024-12,ok,0,0,0,,

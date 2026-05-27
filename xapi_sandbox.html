@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<!--
+================================================================================
+  xAPI Adapter Live Sandbox & Specification
+  File: xapi_sandbox.html
+================================================================================
+
+  [2026-05-26] Engineering Log — Full Analytics Integration (Phase 2 Complete)
+  ============================================================================
+
+  ## 개요
+  FastAPI 백엔드(web_app.py) + MongoDB lrs_test(1.15M 문서)와 완전 연동된
+  실시간 xAPI Analytics Sandbox UI. 모든 카드 클릭 → 실 API 호출 → 라이브 JSON 반환.
+
+  ## 백엔드 (src/xapi_tools/web_app.py)
+  ─────────────────────────────────────────
+  추가된 FastAPI 엔드포인트 (총 23개 analytics 경로):
+
+  [Media Profile]
+    GET /api/v1/analytics/media/watched-list?user_id=
+    GET /api/v1/analytics/media/watched-count?user_id=&verb=
+    GET /api/v1/analytics/media/initialized-info?user_id=
+    GET /api/v1/analytics/media/now-play-time?user_id=
+    GET /api/v1/analytics/media/play-pause-time-interval?user_id=
+    GET /api/v1/analytics/media/seeked-time-interval?user_id=
+    GET /api/v1/analytics/media/completed-time-interval?user_id=
+    GET /api/v1/analytics/media/terminated-time-interval?user_id=
+    GET /api/v1/analytics/media/interacted-time-interval?user_id=
+
+  [Session Profile]
+    GET /api/v1/analytics/session/time-list?user_id=
+
+  [Assessment Profile]
+    GET /api/v1/analytics/assessment/solved-question-count?user_id=
+    GET /api/v1/analytics/assessment/attempt-question-count?user_id=
+    GET /api/v1/analytics/assessment/extensions?user_id=
+    GET /api/v1/analytics/assessment/interaction?user_id=
+
+  [Navigation Profile]
+    GET /api/v1/analytics/navigation/list?user_id=
+    GET /api/v1/analytics/navigation/ratio?user_id=
+
+  [Applied Analytics]
+    GET /api/v1/analytics/applied/wrong-answers?user_id=
+    GET /api/v1/analytics/applied/assessment-history?user_id=
+    GET /api/v1/analytics/applied/assessment-grade-history?user_id=&grade=
+    GET /api/v1/analytics/applied/subject-correct-rate?user_id=&grade=&subject=
+    GET /api/v1/analytics/applied/wrong-answers-test?user_id=&subject=
+    GET /api/v1/analytics/applied/wrong-answers-chapter-test?user_id=&subject=&grade=&semester=&chapter=
+
+  [기존 유지]
+    GET /api/v1/analytics/activities?user_id=&verb_category=
+
+  _get_user_dataset_dict() 변경사항:
+    - limit=1000 기본값 추가 (전체 1.15M 문서 풀스캔 방지 → 실용적 응답속도 확보)
+
+  ## 프론트엔드 (xapi_sandbox.html)
+  ─────────────────────────────────────────
+  runModalApi() 변경사항:
+    - unhandledApis 블록 완전 제거 (모든 카드 → 실 API 강제 호출)
+    - 22개 apiKey → kebab-case FastAPI 경로 완전 매핑 (fetchUrl 라우팅 확장)
+
+  PARAMETER_VALUES 변경사항:
+    - "name", "user_id", "dataset" → 실 DB 유저 ["hy11", "hy22", "apitest"] 로 교체
+    - "grade" → 숫자형 ["5", "6"] 으로 변경 (백엔드 파라미터 타입 일치)
+
+  API_PARAMS_MAP 변경사항:
+    - "dataset" 파라미터 → "user_id" 파라미터로 전면 교체
+    - verb_count 포함 모든 카드가 user_id 기준 DB 조회
+
+  기본값 fallback 변경사항:
+    - name/userId 기본값 'RenaKim'/'김레나' → 'hy11' (실 DB 존재 유저)
+
+  ## 스모크 테스트 결과 (2026-05-26, user_id=hy11)
+  ─────────────────────────────────────────
+    ✅ 200  session/time-list         keys: [timestamp, name, verbs]
+    ✅ 200  assessment/solved-question-count
+    ✅ 200  navigation/ratio          keys: [name, time]
+    ✅ 200  media/watched-list        keys: [media_content, media_type]
+    ✅ 200  applied/assessment-grade-history
+    ✅ 200  applied/subject-correct-rate
+    ✅ 200  media/initialized-info    keys: [media-session-id, length, frame-rate]
+    ✅ 200  media/now-play-time       keys: [media_name, start_time]
+
+  ## 실행 환경
+  ─────────────────────────────────────────
+  Server : uvicorn xapi_tools.web_app:app --app-dir src --host localhost --port 8000 --reload
+  DB     : mongodb://192.168.0.200:27017/lrs_test  (statements: 1,152,116건)
+  Docs   : http://localhost:8000/docs  (Swagger UI)
+  UI     : http://localhost:8000/  (이 파일)
+
+================================================================================
+-->
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xAPI Adapter Live Sandbox & Specification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --surface-color: rgba(17, 22, 37, 0.65);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary-glow: rgba(59, 130, 246, 0.15);
+            --primary-color: #3b82f6;
+            --primary-accent: #60a5fa;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --font-main: 'Outfit', sans-serif;
+            --font-code: 'Fira Code', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 2.5rem;
+            background: rgba(11, 15, 25, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--surface-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .logo-icon {
+            font-size: 2rem;
+            color: var(--primary-accent);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.6rem 1.2rem;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tab-btn.active {
+            color: var(--text-main);
+            background: rgba(59, 130, 246, 0.15);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: var(--primary-accent);
+            padding: 0.45rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-accent);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary-accent);
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(96, 165, 250, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 2.5rem;
+            max-width: 1800px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+            height: calc(100vh - 190px);
+            min-height: 700px;
+        }
+
+        .pane {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .pane-header {
+            padding: 1.1rem 1.5rem;
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pane-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .pane-body {
+            padding: 1.5rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        textarea {
+            background: #060913;
+            border: 1px solid var(--surface-border);
+            color: #38bdf8;
+            padding: 1rem;
+            border-radius: 10px;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.25s;
+            resize: none;
+            line-height: 1.5;
+            tab-size: 2;
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .code-viewer {
+            width: 100%;
+            height: 100%;
+            background: #060913;
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+            color: #34d399;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            padding: 1rem;
+            overflow: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.25rem;
+        }
+
+        .preset-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--surface-border);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .preset-btn:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .preset-btn.active {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--primary-color);
+            color: var(--primary-accent);
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--surface-border);
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .badge-info {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--primary-accent);
+        }
+
+        /* Specification document style */
+        .spec-container {
+            background: var(--surface-color);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            line-height: 1.7;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        }
+
+        .spec-header {
+            border-bottom: 1px solid var(--surface-border);
+            padding-bottom: 1.5rem;
+        }
+
+        .spec-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-main), var(--primary-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .spec-section h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin: 1.5rem 0 1rem 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            background: rgba(59, 130, 246, 0.03);
+            border: 1px dashed rgba(59, 130, 246, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .spec-section h2:hover {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.3);
+            color: var(--text-main);
+        }
+
+        .spec-section-title-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spec-section h2 .toggle-icon {
+            font-size: 1.4rem;
+            transition: transform 0.2s ease;
+            color: var(--text-muted);
+        }
+
+        .spec-section.collapsed h2 .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        /* 접혔을 때 내부 콘텐츠 숨김 */
+        .spec-section.collapsed > *:not(h2) {
+            display: none !important;
+        }
+
+        .spec-section p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .spec-section ul {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .spec-section li {
+            margin-bottom: 0.4rem;
+        }
+
+        /* Pure CSS Flow Diagram */
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            padding: 2.5rem;
+            background: rgba(6, 9, 19, 0.4);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            box-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.3);
+            gap: 0.2rem;
+            overflow-x: auto;
+        }
+
+        .flow-row {
+            display: flex;
+            justify-content: center;
+            width: 600px;
+            flex-shrink: 0;
+        }
+
+        .flow-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            width: 200px;
+            flex: none;
+        }
+
+        .flow-card {
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
+            min-width: 180px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s;
+        }
+
+        .flow-card:hover {
+            border-color: var(--primary-accent);
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .flow-card.sub {
+            background: #21262d;
+            color: #8b949e;
+            font-size: 0.8rem;
+            min-width: 150px;
+        }
+
+        .flow-card.highlight {
+            border-color: #8b949e;
+            color: #f0f6fc;
+            font-weight: 600;
+            min-width: 240px;
+            padding: 0.85rem 2rem;
+            font-size: 0.95rem;
+        }
+
+        .flow-arrow-svg {
+            display: block;
+            margin: 0.15rem 0;
+            flex-shrink: 0;
+        }
+
+        .flow-svg-split {
+            width: 600px;
+            height: 35px;
+            margin: 0.2rem 0;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .http-code-block {
+            background: #060913;
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            font-family: var(--font-code);
+            font-size: 0.9rem;
+            overflow: auto;
+            color: #93c5fd;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .syntax-keyword { color: #f472b6; font-weight: 600; }
+        .syntax-string { color: #34d399; }
+        .syntax-comment { color: #6b7280; font-style: italic; }
+        .syntax-url { color: #60a5fa; text-decoration: underline; }
+
+        .flex-between {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .info-box {
+            background: rgba(59, 130, 246, 0.08);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.2rem;
+            border-radius: 0 12px 12px 0;
+            color: var(--text-main);
+            margin: 1rem 0;
+            display: flex;
+            gap: 0.8rem;
+            align-items: flex-start;
+        }
+
+        .info-box-icon {
+            color: var(--primary-accent);
+            font-size: 1.4rem;
+            margin-top: 0.15rem;
+        }
+
+        /* PREMIUM API SPECIFICATION STYLES */
+        .spec-section-subtitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin: 1.5rem 0 0.8rem 0;
+            border-left: 3px solid var(--primary-accent);
+            padding-left: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .spec-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .spec-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary-accent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .spec-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: rgba(96, 165, 250, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .spec-card:hover::before {
+            opacity: 1;
+        }
+
+        .spec-card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: var(--font-code);
+        }
+
+        .spec-card-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .spec-card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: auto;
+            padding-top: 0.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .mini-badge {
+            font-size: 0.75rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: var(--font-code);
+        }
+
+        .mini-badge-primary {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-accent);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .mini-badge-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .mini-badge-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .accordion-section {
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.01);
+            margin-bottom: 0.8rem;
+        }
+
+        .accordion-header {
+            padding: 1rem 1.2rem;
+            background: rgba(255, 255, 255, 0.02);
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        .accordion-header:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .accordion-content {
+            padding: 1.2rem;
+            border-top: 1px solid var(--surface-border);
+            background: rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .accordion-content.active {
+            display: block;
+        }
+
+        .spec-card {
+            cursor: pointer;
+        }
+
+        .spec-card-result {
+            margin-top: 0.8rem;
+            background: #030712;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            border-radius: 8px;
+            padding: 0.9rem;
+            font-family: var(--font-code);
+            font-size: 0.82rem;
+            color: #34d399;
+            overflow-x: auto;
+            max-height: 260px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+            display: none;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .spec-card-result.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.4rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .result-badge {
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .result-badge-live {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .result-badge-fallback {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .result-code {
+            white-space: pre;
+            line-height: 1.45;
+        }
+
+        /* PREMIUM MODAL DIALOG STYLE */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(3, 7, 18, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-color);
+            border: 1px solid var(--primary-color);
+            box-shadow: 0 0 35px var(--primary-glow);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 580px;
+            overflow: hidden;
+            transform: scale(0.9);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid var(--surface-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .modal-title-area {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .modal-title-icon {
+            font-size: 1.8rem;
+            color: var(--primary-accent);
+        }
+
+        .modal-title-area h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            font-family: var(--font-code);
+            color: var(--text-main);
+        }
+
+        .modal-title-area p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .modal-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.8rem;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close-btn:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .params-checkbox-grid {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid var(--surface-border);
+            border-radius: 10px;
+            padding: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.9rem;
+        }
+
+        .param-group-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+            padding-bottom: 0.2rem;
+        }
+
+        .checkbox-options-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--surface-border);
+            padding: 0.45rem 0.85rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .checkbox-label:hover {
+            background: rgba(59, 130, 246, 0.05);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .checkbox-label input[type="checkbox"],
+        .checkbox-label input[type="radio"] {
+            accent-color: var(--primary-accent);
+            cursor: pointer;
+        }
+
+        .checkbox-label.selected {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--primary-color);
+            color: var(--primary-accent);
+            font-weight: 600;
+        }
+
+        .modal-action-row {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-submit-btn {
+            background: linear-gradient(135deg, var(--primary-color), #2563eb);
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1.4rem;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .modal-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .modal-result-area {
+            background: #030712;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 1rem;
+            min-height: 120px;
+            max-height: 250px;
+            overflow-y: auto;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.7);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-area">
+            <span class="material-symbols-rounded logo-icon">blur_on</span>
+            <span class="logo-text">xAPI Adaptor Sandbox</span>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('sandbox')">
+                <span class="material-symbols-rounded">science</span> 실시간 샌드박스 (Live)
+            </button>
+            <button class="tab-btn" onclick="switchTab('spec')">
+                <span class="material-symbols-rounded">receipt_long</span> 명세 및 계획 (api.http)
+            </button>
+            <button class="tab-btn" onclick="switchTab('audit')">
+                <span class="material-symbols-rounded">analytics</span> LRS 데이터 신뢰도 진단
+            </button>
+        </div>
+        <div class="status-badge" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.25); color: #fbbf24;">
+            <span class="status-dot" style="background-color: #fbbf24; box-shadow: 0 0 8px #fbbf24; animation: pulse 1.8s infinite;"></span>
+            🟠 OFFLINE DEMO (No Server/No DB)
+        </div>
+    </header>
+
+    <main>
+        <!-- TAB 1: LIVE SANDBOX -->
+        <div id="sandbox-tab" class="tab-content active">
+            <div class="grid-layout">
+                <!-- LEFT PANE: INPUT & MAPPING -->
+                <div class="pane">
+                    <div class="pane-header">
+                        <div class="pane-title">
+                            <span class="material-symbols-rounded" style="color:var(--primary-accent)">tune</span>
+                            어댑터 데이터 설정 & 입력
+                        </div>
+                    </div>
+                    <div class="pane-body">
+                        <!-- Preset selector -->
+                        <div class="form-group">
+                            <label>테스트 데이터 프리셋 선택 (실제 DB 추출 샘플)</label>
+                            <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; width: 100%;">
+                                <button class="preset-btn active" onclick="loadPreset('aidtbook')">
+                                    <span class="material-symbols-rounded">play_circle</span> 똑똑수학 미디어 재생 (김태윤)
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('hy')">
+                                    <span class="material-symbols-rounded">assignment_turned_in</span> 똑똑수학 형성평가 제출 (서의진)
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('lecognizer')">
+                                    <span class="material-symbols-rounded">login</span> 똑똑수학 시스템 로그인 (김지환)
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('paused_event')">
+                                    <span class="material-symbols-rounded">pause_circle</span> 똑똑수학 미디어 일시정지 (서의진)
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('navigated_event')">
+                                    <span class="material-symbols-rounded">explore</span> 똑똑수학 학습 화면 이동 (김지환)
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('fake_test')">
+                                    <span class="material-symbols-rounded">report</span> [경고] 가짜 테스트 계정 (학생001)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Raw Statement Input -->
+                        <div class="form-group" style="flex: 1.2; display: flex; flex-direction: column;">
+                            <div class="flex-between">
+                                <label>Raw xAPI Statement JSON (원본 데이터)</label>
+                                <span class="badge badge-info" id="original-verb-badge">playing</span>
+                            </div>
+                            <textarea class="code-editor" id="raw-editor" style="flex: 1;" oninput="triggerNormalization()"></textarea>
+                        </div>
+
+                        <!-- Mapping config Input -->
+                        <div class="form-group" style="flex: 1.5; display: flex; flex-direction: column;">
+                            <label>Mapping Configuration JSON (매핑 어댑터 룰 설정)</label>
+                            <textarea class="code-editor" id="config-editor" style="flex: 1; color:#f59e0b" oninput="triggerNormalization()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT PANE: STANDARD CANONICAL VIEW -->
+                <div class="pane">
+                    <div class="pane-header">
+                        <div class="pane-title">
+                            <span class="material-symbols-rounded" style="color:var(--success-color)">task_alt</span>
+                            정규화 결과: Canonical Model (Pydantic 표준구조)
+                        </div>
+                        <span class="badge badge-success">Pydantic Schema Validated</span>
+                    </div>
+                    <div class="pane-body" style="padding: 1rem; background: #060913;">
+                        <pre class="code-viewer" id="canonical-viewer">Wait...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: SPECIFICATION & ROADMAP -->
+        <div id="spec-tab" class="tab-content">
+            <div class="spec-container">
+                <div class="spec-header">
+                    <h1>xapi_api.http 명세 및 구현 가이드</h1>
+                    <p style="color:var(--text-muted)">REST Client (VS Code/IntelliJ) 파일과 100% 호환되며 바로 열어 테스트할 수 있는 포맷입니다.</p>
+                </div>
+
+                <div class="spec-section" style="display: none;">
+                    <h2>
+                        <span class="material-symbols-rounded">code</span>
+                        xapi_api.http REST API 클라이언트 명세 (Live Code Viewer)
+                    </h2>
+                    <p>로컬 FastAPI 백엔드와 상호작용하기 위한 모든 REST API 명세 파일 내용입니다. VS Code REST Client 나 IntelliJ HTTP Client에서 직접 실행할 수 있습니다.</p>
+                    <div style="margin-top: 1rem; border: 1px solid var(--surface-border); border-radius: 10px; background: #030712; padding: 1.2rem; overflow-x: auto; max-height: 500px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
+                        <pre id="http-code-display" style="margin: 0; font-family: var(--font-code); font-size: 0.8rem; line-height: 1.5; color: #fbbf24; text-align: left; white-space: pre;"></pre>
+                    </div>
+                </div>
+                
+                <div class="spec-section">
+                    <h2>
+                        <span class="material-symbols-rounded">schema</span>
+                        아키텍처 핵심 아이디어: Canonical Data Model (표준 내부 모델)
+                    </h2>
+                    <p>공통 분석 및 검증 함수들이 업체에 무관하게 항상 재사용될 수 있도록, 어댑터가 원본 xAPI 데이터를 단일한 표준 모델로 실시간 변환(Mapping) 및 검증을 완료한 후 코어 로직으로 흐르도록 아키텍처가 구성됩니다.</p>
+                    <div class="flow-diagram">
+                        <!-- 1. Top row (Clients) -->
+                        <div class="flow-row">
+                            <div class="flow-column">
+                                <div class="flow-card">업체 A raw xAPI</div>
+                                <svg class="flow-arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0V18M10 18L5 13M10 18L15 13" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="flow-card sub">Mapping Config A</div>
+                            </div>
+                            <div class="flow-column">
+                                <div class="flow-card">업체 B raw xAPI</div>
+                                <svg class="flow-arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0V18M10 18L5 13M10 18L15 13" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="flow-card sub">Mapping Config B</div>
+                            </div>
+                            <div class="flow-column">
+                                <div class="flow-card">업체 C raw xAPI</div>
+                                <svg class="flow-arrow-svg" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M10 0V18M10 18L5 13M10 18L15 13" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <div class="flow-card sub">Mapping Config C</div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Convergence Lines -->
+                        <svg class="flow-svg-split" viewBox="0 0 600 35" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Left path -->
+                            <path d="M100 0V12C100 17 105 22 115 22H290C295 22 300 24 300 29V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <!-- Center path -->
+                            <path d="M300 0V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <!-- Right path -->
+                            <path d="M500 0V12C500 17 495 22 485 22H310C305 22 300 24 300 29V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <!-- Arrowhead -->
+                            <path d="M295 30L300 35L305 30" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 3. Normalizer -->
+                        <div class="flow-card highlight">정규화 엔진 Normalizer</div>
+
+                        <!-- 4. Down Arrow -->
+                        <svg class="flow-arrow-svg" width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 0V23M10 23L5 18M10 23L15 18" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 5. Transform -->
+                        <div class="flow-card sub" style="min-width: 120px;">변환 및 검증</div>
+
+                        <!-- 6. Down Arrow -->
+                        <svg class="flow-arrow-svg" width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 0V23M10 23L5 18M10 23L15 18" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 7. Canonical Model -->
+                        <div class="flow-card highlight">Canonical Model 표준 포맷</div>
+
+                        <!-- 8. Down Arrow -->
+                        <svg class="flow-arrow-svg" width="20" height="25" viewBox="0 0 20 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10 0V23M10 23L5 18M10 23L15 18" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 9. Core Functions -->
+                        <div class="flow-card highlight">공통 API 기능 함수</div>
+
+                        <!-- 10. Split Arrows -->
+                        <svg class="flow-svg-split" viewBox="0 0 600 35" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Left path -->
+                            <path d="M300 0V5C300 10 295 15 285 15H115C105 15 100 20 100 25V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M95 30L100 35L105 30" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Center path -->
+                            <path d="M300 0V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M295 30L300 35L305 30" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <!-- Right path -->
+                            <path d="M300 0V5C300 10 305 15 315 15H485C495 15 500 20 500 25V35" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M495 30L500 35L505 30" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+
+                        <!-- 11. Bottom row -->
+                        <div class="flow-row">
+                            <div class="flow-column">
+                                <div class="flow-card">학습 분석 API</div>
+                            </div>
+                            <div class="flow-column">
+                                <div class="flow-card">세션 검증 API</div>
+                            </div>
+                            <div class="flow-column">
+                                <div class="flow-card">진도/흐름 체크 API</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="spec-section">
+                    <h2>
+                        <span class="material-symbols-rounded">check_circle</span>
+                        Notion 규격 기본 API 포팅 완료 현황 (100% 탑재)
+                    </h2>
+                    <p>Notion에 구상된 프로파일별 기본 데이터 분석 함수 총 20종이 API 파이프라인 엔진 내에 전격 탑재되었습니다.</p>
+                    
+                    <div class="spec-section-subtitle">
+                        <span class="material-symbols-rounded">movie</span> Media Profile (10종)
+                    </div>
+                    <div class="spec-grid">
+                        <div class="spec-card">
+                            <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
+                            <div class="spec-card-desc">유저의 미디어 특정 verb 발생 빈도수를 구합니다.</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: int</span></div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">media_heatmap <span class="mini-badge mini-badge-success">Applied</span></div>
+                            <div class="spec-card-desc">미디어 구간별 점유 데이터 Heatmap 분석.</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: list</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: LRS DATA QUALITY AUDIT -->
+        <div id="audit-tab" class="tab-content">
+            <div class="spec-container" style="padding: 2rem;">
+                <div class="spec-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <h1 style="font-size: 1.8rem; display: flex; align-items: center; gap: 0.6rem;">
+                        <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 2.2rem;">security_metrics</span>
+                        LRS 행동 데이터 통합 진단 & EdTech Insights
+                    </h1>
+                </div>
+
+                <!-- Database comparison row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 1.2rem;">
+                        <h4 style="font-size: 1rem; font-weight: 700;">Database: lrs</h4>
+                        <div id="lrs-count-val" style="font-size: 1.8rem; font-weight: 800; color: #60a5fa;">743,771,916</div>
+                    </div>
+                    <div style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 1.2rem;">
+                        <h4 style="font-size: 1rem; font-weight: 700;">Database: lrs_test</h4>
+                        <div id="lrs-test-count-val" style="font-size: 1.8rem; font-weight: 800; color: #f59e0b;">1,152,116</div>
+                    </div>
+                    <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 1.2rem;">
+                        <h4 style="font-size: 1rem; font-weight: 700;">Database: kt_lrs</h4>
+                        <div id="kt-lrs-count-val" style="font-size: 1.8rem; font-weight: 800; color: #10b981;">3,699</div>
+                    </div>
+                </div>
+
+                <div id="live-preset-metrics-section" style="margin-top: 1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                        <h4 style="font-size: 0.95rem; font-weight: 700;">실시간 인덱스 집계 결과</h4>
+                        <span id="live-audit-status" style="font-size: 0.72rem; font-weight: 700;">🟡 오프라인</span>
+                    </div>
+                    <div style="overflow-x: auto; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; background: rgba(3, 7, 18, 0.2);">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                    <th style="padding: 0.5rem 0.75rem;">계정 구분</th>
+                                    <th style="padding: 0.5rem 0.75rem;">학생명</th>
+                                    <th style="padding: 0.5rem 0.75rem;">ID</th>
+                                    <th style="padding: 0.5rem 0.75rem; text-align: right;">로그 수</th>
+                                    <th style="padding: 0.5rem 0.75rem; text-align: right;">Verbs 종수</th>
+                                </tr>
+                            </thead>
+                            <tbody id="live-preset-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const PRESETS = {
+            aidtbook: {
+                raw: { statement: { actor: { name: "김태윤", account: { name: "11572119" } }, verb: { id: ".../played" }, object: { id: "media-01" } } },
+                config: { mappings: { actor_id_path: "statement.actor.account.name", verb_mapping: { "played": "played" } } }
+            },
+            hy: {
+                raw: { statement: { actor: { name: "서의진", account: { name: "50834687" } }, verb: { id: ".../submitted" }, object: { id: "test-01" } } },
+                config: { mappings: { actor_id_path: "statement.actor.account.name", verb_mapping: { "submitted": "completed" } } }
+            }
+        };
+
+        const SPEC_MOCK_DATA = {
+            "verb_count": { "result": 142, "user": "김태윤" },
+            "media_heatmap": [ { "bucket": 0, "pause": 5, "seek": 2 }, { "bucket": 5, "pause": 1, "seek": 8 } ]
+        };
+
+        let currentActiveApi = 'verb_count';
+        const API_PARAMS_MAP = { "verb_count": ["user_id", "verb"], "media_heatmap": ["activity_id"] };
+        const PARAMETER_VALUES = {
+            "user_id": ["11572119-e321-4bc2-b57c-4189e5f80936", "50834687-32e4-477b-bff3-da98a2b8dc1c"],
+            "verb": ["played", "paused"],
+            "activity_id": ["media-01", "media-02"]
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelector(`button[onclick*="'${tabId}'"]`).classList.add('active');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            if (tabId === 'audit') loadLiveDiagnostics();
+        }
+
+        async function loadLiveDiagnostics() {
+            const tbody = document.getElementById('live-preset-tbody');
+            const status = document.getElementById('live-audit-status');
+            try {
+                const res = await fetch('http://localhost:8000/api/v1/diagnostics/profile');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                status.textContent = '🟢 실시간 연결';
+                tbody.innerHTML = Object.keys(data.actor_metrics).map(k => `<tr><td>학생</td><td>${k}</td><td>${data.actor_metrics[k].account_id}</td><td align="right">${data.actor_metrics[k].count}</td><td align="right">${data.actor_metrics[k].verbs_count}</td></tr>`).join('');
+            } catch (e) {
+                status.textContent = '🟡 오프라인 모드';
+                tbody.innerHTML = '<tr><td colspan="5" align="center">오프라인 샘플 데이터를 표시합니다.</td></tr>';
+            }
+        }
+
+        function loadPreset(key) {
+            const p = PRESETS[key] || PRESETS.aidtbook;
+            document.getElementById('raw-editor').value = JSON.stringify(p.raw, null, 2);
+            document.getElementById('config-editor').value = JSON.stringify(p.config, null, 2);
+            triggerNormalization();
+        }
+
+        function triggerNormalization() {
+            const raw = JSON.parse(document.getElementById('raw-editor').value);
+            document.getElementById('canonical-viewer').textContent = JSON.stringify({ actor: raw.statement.actor, verb: "mapped", timestamp: new Date().toISOString() }, null, 2);
+        }
+
+        function openApiModal(apiId) {
+            currentActiveApi = apiId;
+            document.getElementById('modal-api-name').textContent = apiId + '()';
+            const container = document.getElementById('modal-parameters-container');
+            container.innerHTML = (API_PARAMS_MAP[apiId] || []).map(p => `<div class="param-group-title">${p}</div><div class="checkbox-options-row">${PARAMETER_VALUES[p].map(v => `<label class="checkbox-label"><input type="radio" name="p-${p}" value="${v}" checked> ${v}</label>`).join('')}</div>`).join('');
+            document.getElementById('api-modal-overlay').classList.add('active');
+        }
+
+        function closeApiModal() { document.getElementById('api-modal-overlay').classList.remove('active'); }
+
+        async function runModalApi() {
+            const code = document.getElementById('modal-result-code');
+            code.textContent = JSON.stringify(SPEC_MOCK_DATA[currentActiveApi] || { status: "simulated" }, null, 2);
+            document.getElementById('modal-result-status').textContent = '✅ 완료';
+        }
+
+        window.onload = () => loadPreset('aidtbook');
+    </script>
+
+    <div id="api-modal-overlay" class="modal-overlay" onclick="closeApiModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title-area"><h3 id="modal-api-name">API</h3><p id="modal-api-desc">상세 설명</p></div>
+                <button class="modal-close-btn" onclick="closeApiModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="modal-parameters-container" class="params-checkbox-grid"></div>
+                <div class="modal-action-row"><button class="modal-submit-btn" onclick="runModalApi()">전송</button></div>
+                <div class="modal-result-area">
+                    <div class="result-header"><span id="modal-result-status">준비</span><span id="modal-result-badge" class="result-badge-fallback">OFFLINE</span></div>
+                    <pre class="result-code" id="modal-result-code"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

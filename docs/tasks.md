@@ -1,0 +1,45 @@
+# Tasks
+
+- [x] Project Analysis & Planning
+    - [x] Analyze current codebase <!-- id: 0 -->
+    - [x] Create Implementation Plan <!-- id: 1 -->
+- [x] Environment Setup with `uv`
+    - [x] Initialize `uv` project <!-- id: 2 -->
+    - [x] Configure `pyproject.toml` <!-- id: 3 -->
+    - [x] Setup virtual environment <!-- id: 4 -->
+- [x] Refactoring & Migration
+    - [x] Restructure directory (e.g., `src` layout) <!-- id: 5 -->
+    - [x] Port existing logic to new structure <!-- id: 6 -->
+- [x] TDD Setup & Implementation
+    - [x] Configure `pytest` <!-- id: 7 -->
+    - [x] Implement xAPI functions with tests <!-- id: 8 -->
+- [x] Documentation
+    - [x] Write README.md <!-- id: 9 -->
+- [x] Session Profile Analytics Implementation
+    - [x] Implement `count_total_sessions` <!-- id: session-1 -->
+    - [x] Implement `calc_avg_session_duration` <!-- id: session-2 -->
+    - [x] Implement `count_active_days` <!-- id: session-3 -->
+    - [x] Implement `analyze_login_times` <!-- id: session-4 -->
+    - [x] Implement `get_platform_usage` <!-- id: session-5 -->
+- [x] Assessment Profile Analytics Implementation
+    - [x] Implement `count_attempts` <!-- id: assess-1 -->
+    - [x] Implement `calc_completion_rate` <!-- id: assess-2 -->
+    - [x] Implement `calc_avg_score` <!-- id: assess-3 -->
+    - [x] Implement `calc_pass_rate` <!-- id: assess-4 -->
+    - [x] Implement `analyze_item_responses` <!-- id: assess-5 -->
+- [x] Media Profile Analytics Implementation
+    - [x] Implement `count_media_plays` <!-- id: media-1 -->
+    - [x] Implement `calc_avg_watch_time` <!-- id: media-2 -->
+    - [x] Implement `identify_drop_off_points` <!-- id: media-3 -->
+    - [x] Implement `calc_completion_rate` <!-- id: media-4 -->
+    - [x] Implement `analyze_seek_behavior` <!-- id: media-5 -->
+- [x] Navigation Profile Analytics Implementation
+    - [x] Implement `count_page_views` <!-- id: nav-1 -->
+    - [x] Implement `find_popular_paths` <!-- id: nav-2 -->
+    - [x] Implement `calc_avg_time_on_page` <!-- id: nav-3 -->
+    - [x] Implement `identify_exit_pages` <!-- id: nav-4 -->
+- [x] Advanced Analytics Implementation (Roadmap)
+    - [x] Implement `media_heatmap` (Media Hotspot) <!-- id: adv-1 -->
+    - [x] Implement `assessment_efficiency` (Efficiency Index) <!-- id: adv-2 -->
+    - [x] Implement `detect_frustration` (Frustration Detection) <!-- id: adv-3 -->
+    - [x] Implement `predict_churn` (Session Churn Early Warning) <!-- id: adv-4 -->

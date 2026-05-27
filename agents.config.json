@@ -1,0 +1,14 @@
+{
+  "nanocoder": {
+    "providers": [
+      {
+        "name": "ollama",
+        "models": [
+          "devstral-small-2:latest",
+          "gpt-oss:20b"
+        ],
+        "baseUrl": "http://192.168.0.100:11434/v1"
+      }
+    ]
+  }
+}

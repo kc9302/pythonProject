@@ -1,0 +1,108 @@
+{
+  "month": "2024-11",
+  "errors": [
+    "error_missing_client-ip",
+    "error_missing_grade-sn",
+    "error_missing_login-type",
+    "error_missing_school-id-sn"
+  ],
+  "code_summary": {
+    "error_empty_session-id": 1990,
+    "error_missing_client-ip": 538444,
+    "error_missing_grade-sn": 538444,
+    "error_missing_login-type": 538444,
+    "error_missing_school-id-sn": 538444
+  },
+  "category_summary": {
+    "format": 1990,
+    "missing": 2153776
+  },
+  "doc": {
+    "statement.id": "dffa5d61-498a-430e-83ab-a433db9ae8c4",
+    "statement.timestamp": "2024-11-01T00:00:00.653177Z",
+    "statement.stored": "2024-11-01T00:00:00.653Z",
+    "context.category": [
+      {
+        "id": "http://lecognizer.com/xapi/profiles/session",
+        "objectType": "Activity",
+        "definition": {
+          "name": {
+            "en-US": "Session Profile"
+          },
+          "description": {
+            "en-US": "Session Profile"
+          }
+        }
+      }
+    ],
+    "context.extensions": {
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sc4570dd5090725e47a0316de7f351a1-1efb102b16eedc54ccd6edf7312fadb978372ae3bae7e2f522ffe79e04253c43cd",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "UnityPlayer/2022.3.39f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)"
+    }
+  },
+  "samples_by_category": {
+    "format": {
+      "errors": [
+        "error_empty_session-id",
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "d97f88c7-c092-482d-a7e9-92c27f1116c2",
+        "statement.timestamp": "2024-11-01T00:25:08.458084Z",
+        "statement.stored": "2024-11-01T00:25:08.458Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0"
+        }
+      }
+    },
+    "missing": {
+      "errors": [
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "dffa5d61-498a-430e-83ab-a433db9ae8c4",
+        "statement.timestamp": "2024-11-01T00:00:00.653177Z",
+        "statement.stored": "2024-11-01T00:00:00.653Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sc4570dd5090725e47a0316de7f351a1-1efb102b16eedc54ccd6edf7312fadb978372ae3bae7e2f522ffe79e04253c43cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "UnityPlayer/2022.3.39f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)"
+        }
+      }
+    }
+  }
+}

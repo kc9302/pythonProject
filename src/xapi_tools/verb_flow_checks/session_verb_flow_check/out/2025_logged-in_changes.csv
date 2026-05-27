@@ -1,0 +1,10 @@
+month,status,present_count,added_count,removed_count,added_keys,removed_keys
+2025-01,ok,0,4,0,"statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip,statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn,statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type,statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn",
+2025-02,ok,0,0,0,,
+2025-03,ok,0,0,0,,
+2025-04,ok,0,0,0,,
+2025-05,ok,0,0,0,,
+2025-06,ok,0,0,0,,
+2025-07,ok,0,0,0,,
+2025-08,ok,0,0,0,,
+2025-09,ok,0,0,0,,

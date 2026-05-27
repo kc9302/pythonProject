@@ -1,0 +1,110 @@
+{
+  "month": "2025-02",
+  "errors": [
+    "error_badformat_login-type"
+  ],
+  "code_summary": {
+    "error_badformat_client-ip": 151,
+    "error_badformat_login-type": 32745,
+    "error_empty_session-id": 534,
+    "error_missing_grade-sn": 1978,
+    "error_missing_login-type": 1788,
+    "error_missing_school-id-sn": 1978
+  },
+  "category_summary": {
+    "format": 33430,
+    "missing": 5744
+  },
+  "doc": {
+    "statement.id": "538a6a2e-73a6-4928-ad8b-3416e6fae4b1",
+    "statement.timestamp": "2025-02-01T00:01:50.753297Z",
+    "statement.stored": "2025-02-01T00:01:50.753Z",
+    "context.category": [
+      {
+        "id": "http://lecognizer.com/xapi/profiles/session",
+        "objectType": "Activity",
+        "definition": {
+          "name": {
+            "en-US": "Session Profile"
+          },
+          "description": {
+            "en-US": "Session Profile"
+          }
+        }
+      }
+    ],
+    "context.extensions": {
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "s71f038ba00a9bc557d06f1754154a64-cddfc68ee3f1a15f883ee2677955ae0569772122de67b7ad17497fe1a4d283b0cd",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "ProductName/132 CFNetwork/1568.200.51 Darwin/24.1.0",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "115.40.48.178",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type": "",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn": 2,
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn": 7246
+    }
+  },
+  "samples_by_category": {
+    "format": {
+      "errors": [
+        "error_badformat_login-type"
+      ],
+      "doc": {
+        "statement.id": "538a6a2e-73a6-4928-ad8b-3416e6fae4b1",
+        "statement.timestamp": "2025-02-01T00:01:50.753297Z",
+        "statement.stored": "2025-02-01T00:01:50.753Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "s71f038ba00a9bc557d06f1754154a64-cddfc68ee3f1a15f883ee2677955ae0569772122de67b7ad17497fe1a4d283b0cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "ProductName/132 CFNetwork/1568.200.51 Darwin/24.1.0",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "115.40.48.178",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type": "",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn": 2,
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn": 7246
+        }
+      }
+    },
+    "missing": {
+      "errors": [
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "8929e65c-4dbb-4ce1-b844-96efd6e93479",
+        "statement.timestamp": "2025-02-01T00:19:12.970126Z",
+        "statement.stored": "2025-02-01T00:19:12.970Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sf49c06ea5e05508cb55c44c4c747a86-8766bdba57bcf4bbcd6aea2dacb2ebd56a4563d264e85f5ae7bd1afef82399c6cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "UnityPlayer/2021.3.21f1 (UnityWebRequest/1.0, libcurl/7.84.0-DEV)",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "110.8.89.199"
+        }
+      }
+    }
+  }
+}

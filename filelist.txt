@@ -1,0 +1,339 @@
+D_Drive 볼륨에 대한 폴더 경로의 목록입니다.
+볼륨 일련 번호는 1A1B-2365입니다.
+D:\WORKSPACE\XAPI_VAILDATOR\PYTHONPROJECT\SRC
+└─xapi_tools
+    │  cli.py
+    │  __init__.py
+    │  
+    ├─analytics
+    │  │  assessment.py
+    │  │  media.py
+    │  │  navigation.py
+    │  │  session.py
+    │  │  __init__.py
+    │  │  
+    │  └─__pycache__
+    │          assessment.cpython-313.pyc
+    │          media.cpython-313.pyc
+    │          navigation.cpython-313.pyc
+    │          session.cpython-313.pyc
+    │          __init__.cpython-313.pyc
+    │          
+    ├─session_validator
+    │  │  cli.py
+    │  │  main.py
+    │  │  __init__.py
+    │  │  
+    │  ├─core
+    │  │  │  loader.py
+    │  │  │  logging_setup.py
+    │  │  │  monthly_aggregate.py
+    │  │  │  session_validate.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  └─__pycache__
+    │  │          loader.cpython-313.pyc
+    │  │          logging_setup.cpython-313.pyc
+    │  │          monthly_aggregate.cpython-313.pyc
+    │  │          session_validate.cpython-313.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  ├─io
+    │  │  │  source_iter.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  └─__pycache__
+    │  │          source_iter.cpython-313.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  ├─logs
+    │  │  │  session_extensions_not_object.log
+    │  │  │  session_validator.log
+    │  │  │  
+    │  │  └─error_samples
+    │  │      ├─2024
+    │  │      │      2024-02.json
+    │  │      │      2024-03.json
+    │  │      │      2024-04.json
+    │  │      │      2024-05.json
+    │  │      │      2024-06.json
+    │  │      │      2024-07.json
+    │  │      │      2024-08.json
+    │  │      │      2024-09.json
+    │  │      │      2024-10.json
+    │  │      │      2024-11.json
+    │  │      │      2024-12.json
+    │  │      │      
+    │  │      └─2025
+    │  │              2025-01.json
+    │  │              2025-02.json
+    │  │              2025-03.json
+    │  │              2025-04.json
+    │  │              2025-05.json
+    │  │              2025-06.json
+    │  │              2025-07.json
+    │  │              2025-08.json
+    │  │              2025-09.json
+    │  │              
+    │  ├─output
+    │  │  ├─2024
+    │  │  │      session_monthly_counts.csv
+    │  │  │      
+    │  │  └─2025
+    │  │          session_monthly_counts.csv
+    │  │          
+    │  ├─rules
+    │  │      session.rules.json
+    │  │      
+    │  ├─tests
+    │  │  │  test_session_sample.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  └─__pycache__
+    │  │          test_session_sample.cpython-313-pytest-9.0.2.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  └─__pycache__
+    │          __init__.cpython-313.pyc
+    │          
+    ├─utils
+    │  │  actor.py
+    │  │  __init__.py
+    │  │  
+    │  └─__pycache__
+    │          actor.cpython-313.pyc
+    │          __init__.cpython-313.pyc
+    │          
+    ├─verb_flow_checks
+    │  ├─assessment_verb_flow_check
+    │  │  │  cli.py
+    │  │  │  main.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  ├─core
+    │  │  │  │  assessment_flow.py
+    │  │  │  │  flow.py
+    │  │  │  │  loader.py
+    │  │  │  │  logging_setup.py
+    │  │  │  │  monthly_flow_aggregate.py
+    │  │  │  │  reporter.py
+    │  │  │  │  validator.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          assessment_flow.cpython-313.pyc
+    │  │  │          flow.cpython-313.pyc
+    │  │  │          logging_setup.cpython-313.pyc
+    │  │  │          monthly_flow_aggregate.cpython-313.pyc
+    │  │  │          navigation_flow.cpython-313.pyc
+    │  │  │          reporter.cpython-313.pyc
+    │  │  │          session_flow.cpython-313.pyc
+    │  │  │          validator.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─io
+    │  │  │  │  source_iter.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          source_iter.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─logs
+    │  │  │      assessment_verb_flow_check_completed.log
+    │  │  │      assessment_verb_flow_check_restarted.log
+    │  │  │      assessment_verb_flow_check_resumed.log
+    │  │  │      assessment_verb_flow_check_skipped.log
+    │  │  │      assessment_verb_flow_check_started.log
+    │  │  │      assessment_verb_flow_check_stopped.log
+    │  │  │      assessment_verb_flow_check_submitted.log
+    │  │  │      assessment_verb_flow_check_timed-out.log
+    │  │  │      
+    │  │  ├─out
+    │  │  │      2024_completed_changes.csv
+    │  │  │      2024_restarted_changes.csv
+    │  │  │      2024_resumed_changes.csv
+    │  │  │      2024_skipped_changes.csv
+    │  │  │      2024_started_changes.csv
+    │  │  │      2024_stopped_changes.csv
+    │  │  │      2024_submitted_changes.csv
+    │  │  │      2024_timed-out_changes.csv
+    │  │  │      2025_completed_changes.csv
+    │  │  │      2025_restarted_changes.csv
+    │  │  │      2025_resumed_changes.csv
+    │  │  │      2025_skipped_changes.csv
+    │  │  │      2025_started_changes.csv
+    │  │  │      2025_stopped_changes.csv
+    │  │  │      2025_submitted_changes.csv
+    │  │  │      2025_timed-out_changes.csv
+    │  │  │      
+    │  │  └─__pycache__
+    │  │          cli.cpython-313.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  ├─media_verb_flow_check
+    │  │  │  cli.py
+    │  │  │  main.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  ├─core
+    │  │  │  │  flow.py
+    │  │  │  │  loader.py
+    │  │  │  │  logging_setup.py
+    │  │  │  │  media_flow.py
+    │  │  │  │  monthly_flow_aggregate.py
+    │  │  │  │  reporter.py
+    │  │  │  │  validator.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          assessment_flow.cpython-313.pyc
+    │  │  │          flow.cpython-313.pyc
+    │  │  │          logging_setup.cpython-313.pyc
+    │  │  │          media_flow.cpython-313.pyc
+    │  │  │          monthly_flow_aggregate.cpython-313.pyc
+    │  │  │          navigation_flow.cpython-313.pyc
+    │  │  │          reporter.cpython-313.pyc
+    │  │  │          session_flow.cpython-313.pyc
+    │  │  │          validator.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─io
+    │  │  │  │  source_iter.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          source_iter.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─logs
+    │  │  │      assessment_verb_flow_check_started.log
+    │  │  │      media_verb_flow_check_completed.log
+    │  │  │      media_verb_flow_check_initialized.log
+    │  │  │      media_verb_flow_check_interacted.log
+    │  │  │      media_verb_flow_check_paused.log
+    │  │  │      media_verb_flow_check_played.log
+    │  │  │      media_verb_flow_check_seeked.log
+    │  │  │      media_verb_flow_check_terminated.log
+    │  │  │      
+    │  │  ├─out
+    │  │  │      2024_completed_changes.csv
+    │  │  │      2024_initialized_changes.csv
+    │  │  │      2024_interacted_changes.csv
+    │  │  │      2024_paused_changes.csv
+    │  │  │      2024_played_changes.csv
+    │  │  │      2024_seeked_changes.csv
+    │  │  │      2024_terminated_changes.csv
+    │  │  │      2025_completed_changes.csv
+    │  │  │      2025_initialized_changes.csv
+    │  │  │      2025_interacted_changes.csv
+    │  │  │      2025_paused_changes.csv
+    │  │  │      2025_played_changes.csv
+    │  │  │      2025_seeked_changes.csv
+    │  │  │      2025_terminated_changes.csv
+    │  │  │      
+    │  │  └─__pycache__
+    │  │          cli.cpython-313.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  ├─navigation_verb_flow_check
+    │  │  │  cli.py
+    │  │  │  main.py
+    │  │  │  __init__.py
+    │  │  │  
+    │  │  ├─core
+    │  │  │  │  flow.py
+    │  │  │  │  loader.py
+    │  │  │  │  logging_setup.py
+    │  │  │  │  monthly_flow_aggregate.py
+    │  │  │  │  navigation_flow.py
+    │  │  │  │  reporter.py
+    │  │  │  │  validator.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          flow.cpython-313.pyc
+    │  │  │          logging_setup.cpython-313.pyc
+    │  │  │          monthly_flow_aggregate.cpython-313.pyc
+    │  │  │          navigation_flow.cpython-313.pyc
+    │  │  │          reporter.cpython-313.pyc
+    │  │  │          session_flow.cpython-313.pyc
+    │  │  │          validator.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─io
+    │  │  │  │  source_iter.py
+    │  │  │  │  __init__.py
+    │  │  │  │  
+    │  │  │  └─__pycache__
+    │  │  │          source_iter.cpython-313.pyc
+    │  │  │          __init__.cpython-313.pyc
+    │  │  │          
+    │  │  ├─logs
+    │  │  │      navigation_verb_flow_check_navigated.log
+    │  │  │      
+    │  │  ├─out
+    │  │  │      2024_navigated_changes.csv
+    │  │  │      2025_navigated_changes.csv
+    │  │  │      
+    │  │  └─__pycache__
+    │  │          cli.cpython-313.pyc
+    │  │          __init__.cpython-313.pyc
+    │  │          
+    │  └─session_verb_flow_check
+    │      │  cli.py
+    │      │  main.py
+    │      │  __init__.py
+    │      │  
+    │      ├─core
+    │      │  │  flow.py
+    │      │  │  loader.py
+    │      │  │  logging_setup.py
+    │      │  │  monthly_flow_aggregate.py
+    │      │  │  reporter.py
+    │      │  │  session_flow.py
+    │      │  │  validator.py
+    │      │  │  __init__.py
+    │      │  │  
+    │      │  └─__pycache__
+    │      │          flow.cpython-313.pyc
+    │      │          logging_setup.cpython-313.pyc
+    │      │          monthly_flow_aggregate.cpython-313.pyc
+    │      │          reporter.cpython-313.pyc
+    │      │          session_flow.cpython-313.pyc
+    │      │          validator.cpython-313.pyc
+    │      │          __init__.cpython-313.pyc
+    │      │          
+    │      ├─io
+    │      │  │  source_iter.py
+    │      │  │  __init__.py
+    │      │  │  
+    │      │  └─__pycache__
+    │      │          source_iter.cpython-313.pyc
+    │      │          __init__.cpython-313.pyc
+    │      │          
+    │      ├─logs
+    │      │      session_verb_flow_check.log
+    │      │      session_verb_flow_check_logged-in.log
+    │      │      session_verb_flow_check_logged-out.log
+    │      │      session_verb_flow_check_timed-out.log
+    │      │      
+    │      ├─out
+    │      │      2024_logged-in_changes.csv
+    │      │      2024_logged-out_changes.csv
+    │      │      2024_timed-out_changes.csv
+    │      │      2025_logged-in_changes.csv
+    │      │      2025_logged-out_changes.csv
+    │      │      2025_timed-out_changes.csv
+    │      │      
+    │      └─__pycache__
+    │              cli.cpython-313.pyc
+    │              compare_flow.cpython-313.pyc
+    │              mongo_source.cpython-313.pyc
+    │              utils.cpython-313.pyc
+    │              verb_flow.cpython-313.pyc
+    │              __init__.cpython-313.pyc
+    │              
+    └─__pycache__
+            __init__.cpython-313.pyc
+            

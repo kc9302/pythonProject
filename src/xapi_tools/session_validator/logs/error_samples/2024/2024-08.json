@@ -1,0 +1,108 @@
+{
+  "month": "2024-08",
+  "errors": [
+    "error_missing_client-ip",
+    "error_missing_grade-sn",
+    "error_missing_login-type",
+    "error_missing_school-id-sn"
+  ],
+  "code_summary": {
+    "error_empty_session-id": 790,
+    "error_missing_client-ip": 264648,
+    "error_missing_grade-sn": 264648,
+    "error_missing_login-type": 264648,
+    "error_missing_school-id-sn": 264648
+  },
+  "category_summary": {
+    "format": 790,
+    "missing": 1058592
+  },
+  "doc": {
+    "statement.id": "f9ae60b2-2cd0-47a5-a043-188e67a812d0",
+    "statement.timestamp": "2024-08-01T00:00:14.988976Z",
+    "statement.stored": "2024-08-01T00:00:14.989Z",
+    "context.category": [
+      {
+        "id": "http://lecognizer.com/xapi/profiles/session",
+        "objectType": "Activity",
+        "definition": {
+          "name": {
+            "en-US": "Session Profile"
+          },
+          "description": {
+            "en-US": "Session Profile"
+          }
+        }
+      }
+    ],
+    "context.extensions": {
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "s0b5dcf15b14f26a76a2f004a077b9d7-ce4b71f0b64a2106e7683f56ac4323ca2d2064c9e92f135829a3e8a397d75d91cd",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+    }
+  },
+  "samples_by_category": {
+    "format": {
+      "errors": [
+        "error_empty_session-id",
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "fabd027b-dae5-4581-a488-2b50fae25e2a",
+        "statement.timestamp": "2024-08-01T00:28:42.423389Z",
+        "statement.stored": "2024-08-01T00:28:42.423Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/25.0 Chrome/121.0.0.0 Safari/537.36"
+        }
+      }
+    },
+    "missing": {
+      "errors": [
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "f9ae60b2-2cd0-47a5-a043-188e67a812d0",
+        "statement.timestamp": "2024-08-01T00:00:14.988976Z",
+        "statement.stored": "2024-08-01T00:00:14.989Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "s0b5dcf15b14f26a76a2f004a077b9d7-ce4b71f0b64a2106e7683f56ac4323ca2d2064c9e92f135829a3e8a397d75d91cd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36"
+        }
+      }
+    }
+  }
+}

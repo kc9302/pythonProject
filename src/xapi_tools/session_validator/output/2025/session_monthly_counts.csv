@@ -1,0 +1,10 @@
+month_label,total_statement_count,error_bad_category_id,error_bad_category_definition_name,error_extensions_not_object,error_missing_session-id,error_badtype_session-id,error_empty_session-id,error_missing_user-agent,error_badtype_user-agent,error_empty_user-agent,error_missing_client-ip,error_badtype_client-ip,error_badformat_client-ip,error_missing_login-type,error_badtype_login-type,error_badformat_login-type,error_missing_grade-sn,error_badtype_grade-sn,error_missing_school-id-sn,error_badtype_school-id-sn
+2025-01,139351,0,0,0,0,0,591,0,0,0,96119,0,63,97308,0,11395,97360,0,97360,0
+2025-02,108257,0,0,0,0,0,534,0,0,0,0,0,151,1788,0,32745,1978,0,1978,0
+2025-03,419544,0,0,0,0,0,8751,0,0,0,0,0,452,3464,0,192984,4646,0,4646,0
+2025-04,923868,0,0,0,0,0,18136,0,0,0,0,0,644,4044,0,461800,6055,0,6055,0
+2025-05,859835,0,0,0,0,0,12653,0,0,0,0,0,722,1981,0,422353,3819,0,3819,0
+2025-06,839145,0,0,0,0,0,9428,0,0,0,0,0,1104,1653,0,402803,3320,0,3320,0
+2025-07,855384,0,0,0,0,0,8218,0,0,0,0,0,1544,2070,0,409920,3682,0,3682,0
+2025-08,327844,0,0,0,0,0,3532,0,0,0,0,0,610,646,0,131033,2611,0,2611,0
+2025-09,863686,0,0,0,0,0,9682,0,0,0,0,0,1117,1497,0,411429,3185,0,3185,0

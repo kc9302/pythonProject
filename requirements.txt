@@ -1,0 +1,8 @@
+# core
+jsonschema>=4.21.1
+
+# 파일 리소스 로더(파이썬 3.11 미만일 때 필요)
+importlib-resources>=6.4.0; python_version < "3.11"
+
+# (선택) MongoDB 사용 시 추가
+pymongo>=4.8.0

@@ -1,0 +1,103 @@
+{
+  "profile": "session",
+  "version": "1.0.0",
+  "match": {
+    "context.contextActivities.category": {
+      "contains": "http://lecognizer.com/xapi/profiles/session"
+    }
+  },
+  "checks": {
+    "category": {
+      "expected_id": "http://lecognizer.com/xapi/profiles/session",
+      "expected_name_enUS": "Session Profile",
+      "expected_desc_enUS": "Session Profile",
+      "errors": {
+        "bad_category_id": "error_bad_category_id",
+        "bad_category_name": "error_bad_category_definition_name"
+      }
+    },
+    "extensions": {
+      "must_exist_object": true,
+      "errors": {
+        "not_object": "error_extensions_not_object"
+      },
+      "keys": [
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id",
+          "type": "string",
+          "required": true,
+          "format": "nonempty",
+          "error_missing": "error_missing_session-id",
+          "error_type": "error_badtype_session-id",
+          "error_format": "error_empty_session-id"
+        },
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent",
+          "type": "string",
+          "required": true,
+          "format": "nonempty",
+          "error_missing": "error_missing_user-agent",
+          "error_type": "error_badtype_user-agent",
+          "error_format": "error_empty_user-agent"
+        },
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip",
+          "type": "string",
+          "required": true,
+          "format": "ipv4",
+          "error_missing": "error_missing_client-ip",
+          "error_type": "error_badtype_client-ip",
+          "error_format": "error_badformat_client-ip"
+        },
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/login-type",
+          "type": "string",
+          "required": true,
+          "format": "nonempty_numeric",
+          "error_missing": "error_missing_login-type",
+          "error_type": "error_badtype_login-type",
+          "error_format": "error_badformat_login-type"
+        },
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/grade-sn",
+          "type": "integer",
+          "required": true,
+          "error_missing": "error_missing_grade-sn",
+          "error_type": "error_badtype_grade-sn"
+        },
+        {
+          "path": "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/school-id-sn",
+          "type": "integer",
+          "required": true,
+          "error_missing": "error_missing_school-id-sn",
+          "error_type": "error_badtype_school-id-sn"
+        }
+      ]
+    }
+  },
+  "report": {
+    "csv_columns": [
+      "month_label",
+      "total_statement_count",
+      "error_bad_category_id",
+      "error_bad_category_definition_name",
+      "error_extensions_not_object",
+      "error_missing_session-id",
+      "error_badtype_session-id",
+      "error_empty_session-id",
+      "error_missing_user-agent",
+      "error_badtype_user-agent",
+      "error_empty_user-agent",
+      "error_missing_client-ip",
+      "error_badtype_client-ip",
+      "error_badformat_client-ip",
+      "error_missing_login-type",
+      "error_badtype_login-type",
+      "error_badformat_login-type",
+      "error_missing_grade-sn",
+      "error_badtype_grade-sn",
+      "error_missing_school-id-sn",
+      "error_badtype_school-id-sn"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+month_label,total_statement_count,error_bad_category_id,error_bad_category_definition_name,error_extensions_not_object,error_missing_session-id,error_badtype_session-id,error_empty_session-id,error_missing_user-agent,error_badtype_user-agent,error_empty_user-agent,error_missing_client-ip,error_badtype_client-ip,error_badformat_client-ip,error_missing_login-type,error_badtype_login-type,error_badformat_login-type,error_missing_grade-sn,error_badtype_grade-sn,error_missing_school-id-sn,error_badtype_school-id-sn
+2024-02,47731,0,0,0,0,0,97,34006,0,0,47731,0,0,47731,0,0,47731,0,47731,0
+2024-03,216574,0,0,0,0,0,1410,0,0,0,216574,0,0,216574,0,0,216574,0,216574,0
+2024-04,491145,0,0,0,0,0,2427,0,0,0,491145,0,0,491145,0,0,491145,0,491145,0
+2024-05,546829,0,0,0,0,0,1506,0,0,0,546829,0,0,546829,0,0,546829,0,546829,0
+2024-06,545197,0,0,0,0,0,950,0,0,0,545197,0,0,545197,0,0,545197,0,545197,0
+2024-07,596065,0,0,0,0,0,1586,0,0,0,596065,0,0,596065,0,0,596065,0,596065,0
+2024-08,264648,0,0,0,0,0,790,0,0,0,264648,0,0,264648,0,0,264648,0,264648,0
+2024-09,504930,0,0,0,0,0,1305,0,0,0,504930,0,0,504930,0,0,504930,0,504930,0
+2024-10,512843,0,0,0,0,0,881,0,0,0,512843,0,0,512843,0,0,512843,0,512843,0
+2024-11,538444,0,0,0,0,0,1990,0,0,0,538444,0,0,538444,0,0,538444,0,538444,0
+2024-12,474870,0,0,0,0,0,2025,0,0,0,474870,0,0,474870,0,0,474870,0,474870,0

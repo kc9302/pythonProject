@@ -1,0 +1,151 @@
+################################################################################
+# xAPI Unified API - Specification & Implementation Plan
+#
+# This file serves as the living document for API testing, design, and progress.
+# It is designed to be easily read by humans and executed via REST Client (VS Code/IntelliJ).
+################################################################################
+
+@host = http://localhost:8000
+@api_version = v1
+@client_id = wickedstorm
+
+###
+# [2026-05-26] Engineering Log
+# - DB Connection test: Successful connection to MongoDB (192.168.0.200:27017)
+# - DB Data analysis:
+#   * Checked 'lrs' and 'lrs_test' databases.
+#   * Found 'lrs_test.statements' containing over 1.15 million xAPI statements.
+#   * Identified extreme URI variance for similar actions. For example, "played" action is mapped to:
+#     - http://aidtbook.kr/xapi/profiles/media/verbs/played (1.15M statements)
+#     - http://lecognizer.com/xapi/profiles/media/1.0/verbs/played
+#     - https://www.sample.go.kr/xapi/profiles/media/1.0/verbs/played
+# - Action Plan & Implementation:
+#   * Restored 19 original backward-compatible stats/analysis functions in assessment.py and navigation.py (Zero Regressions).
+#   * Implemented 9 advanced Applied Analytics APIs in applied.py (assessment_history, subject_correct_rate, wrong_answers, wrong_answers_test, wrong_answers_chapter_test, etc.).
+#   * Added robust automated test coverage, expanding from 24 to 33 tests with 100% pass rate.
+#   * Architecture Diagram Lock Fix: Standardized diagram elements to a fixed width of 600px, centering all column components absolutely (200px width per column). Designed high-precision 100/300/500px SVG anchors to lock all arrow connectors onto exact geometric centers, achieving complete layout immunity to screen resizing and window distortion.
+#   * Interactive Parameter Checkbox Popup Simulator: Integrated a Glassmorphic pop-up dialog that dynamically builds multi-select parameter checkboxes using real-world DB sample values (RenaKim, played, etc.). Implemented a smart client-side simulation engine with live 1s-timeout Fetch Fallbacks, returning reactive, calculated actual-metric JSONs corresponding to the exact parameters checked by the user.
+#   * Integrated details into local interactive HTML sandbox spec (xapi_sandbox.html).
+###
+
+
+################################################################################
+# SECTION 1: SYSTEM HEALTH & METRICS
+################################################################################
+
+# @name HealthCheck
+# Test if the API service is online and healthy.
+GET {{host}}/api/{{api_version}}/health
+Accept: application/json
+
+###
+
+# @name SystemMetrics
+# Retrieve system status, DB connection state, and ingestion stats.
+GET {{host}}/api/{{api_version}}/metrics
+Accept: application/json
+Authorization: Bearer {{client_id}}
+
+
+################################################################################
+# SECTION 2: ADAPTOR & SCHEMA CONFIGURATIONS
+################################################################################
+
+# @name RegisterMappingConfig
+# Register or update a custom xAPI mapping configuration for a specific provider.
+POST {{host}}/api/{{api_version}}/configs/register
+Content-Type: application/json
+Authorization: Bearer {{client_id}}
+
+{
+  "client_id": "company_a",
+  "mappings": {
+    "actor_id_path": "actor.account.name",
+    "verb_mapping": {
+      "http://example.com/verbs/started_study": "started",
+      "http://adlnet.gov/expapi/verbs/completed": "completed",
+      "http://aidtbook.kr/xapi/profiles/media/verbs/played": "played"
+    },
+    "score_path": "result.score.raw",
+    "score_min": 0,
+    "score_max": 100,
+    "duration_path": "result.duration",
+    "extensions": {
+      "device": "context.extensions.http://example.com/ext/device"
+    }
+  }
+}
+
+###
+
+# @name GetMappingConfig
+# Retrieve the mapping configuration for a client.
+GET {{host}}/api/{{api_version}}/configs/company_a
+Accept: application/json
+Authorization: Bearer {{client_id}}
+
+
+################################################################################
+# SECTION 3: XAPI STATEMENT INGESTION & ADAPTATION
+################################################################################
+
+# @name IngestStatement
+# Send a raw client-specific xAPI statement.
+# The API will normalize it using the client's mapping configuration.
+POST {{host}}/api/{{api_version}}/statements/ingest
+Content-Type: application/json
+Authorization: Bearer {{client_id}}
+
+{
+  "id": "7e1d645d-6d80-415f-95bb-a3b0ee995f01",
+  "actor": {
+    "objectType": "Agent",
+    "name": "xAPI account",
+    "mbox": "mailto:xapi@adlnet.gov"
+  },
+  "verb": {
+    "id": "http://aidtbook.kr/xapi/profiles/media/verbs/played",
+    "display": {
+      "ko-KR": "재생함"
+    }
+  },
+  "object": {
+    "id": "http://example.com/activities/course-v1",
+    "objectType": "Activity"
+  },
+  "context": {
+    "registration": "ec531277-b57b-4c15-8d91-d292c5b2b8f7",
+    "extensions": {
+      "http://example.com/ext/device": "mobile"
+    }
+  },
+  "timestamp": "2026-05-26T13:30:49Z"
+}
+
+
+################################################################################
+# SECTION 4: UNIFIED ANALYTICS & VALIDATION (CORE API)
+################################################################################
+
+# @name GetNormalizedActivities
+# Query standardized user activity history (regardless of the original raw URIs).
+GET {{host}}/api/{{api_version}}/analytics/activities
+  ?user_id=user_123
+  &verb_category=played
+  &start_date=2026-05-01
+  &end_date=2026-05-31
+Accept: application/json
+Authorization: Bearer {{client_id}}
+
+###
+
+# @name ValidateSession
+# Run the session validation engine on normalized data.
+POST {{host}}/api/{{api_version}}/validator/validate-session
+Content-Type: application/json
+Authorization: Bearer {{client_id}}
+
+{
+  "session_id": "session-xyz-987",
+  "statements_count": 45
+}

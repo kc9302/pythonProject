@@ -1,0 +1,110 @@
+{
+  "month": "2025-01",
+  "errors": [
+    "error_missing_client-ip",
+    "error_missing_grade-sn",
+    "error_missing_login-type",
+    "error_missing_school-id-sn"
+  ],
+  "code_summary": {
+    "error_badformat_client-ip": 63,
+    "error_badformat_login-type": 11395,
+    "error_empty_session-id": 591,
+    "error_missing_client-ip": 96119,
+    "error_missing_grade-sn": 97360,
+    "error_missing_login-type": 97308,
+    "error_missing_school-id-sn": 97360
+  },
+  "category_summary": {
+    "format": 12049,
+    "missing": 388147
+  },
+  "doc": {
+    "statement.id": "606ab010-026b-464d-8e10-bbd0ac03a07a",
+    "statement.timestamp": "2025-01-01T00:00:02.379806Z",
+    "statement.stored": "2025-01-01T00:00:02.380Z",
+    "context.category": [
+      {
+        "id": "http://lecognizer.com/xapi/profiles/session",
+        "objectType": "Activity",
+        "definition": {
+          "name": {
+            "en-US": "Session Profile"
+          },
+          "description": {
+            "en-US": "Session Profile"
+          }
+        }
+      }
+    ],
+    "context.extensions": {
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sc9e4dc8dcbc56102163ff6f5c6fa304-a84ced319703cf12443c17542e21bbbc2cf5a3313b72adb9a7107526629aa38ecd",
+      "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "ProductName/129 CFNetwork/1568.300.101 Darwin/24.2.0"
+    }
+  },
+  "samples_by_category": {
+    "format": {
+      "errors": [
+        "error_empty_session-id",
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "bdca2646-062b-478f-9431-04e4647aed61",
+        "statement.timestamp": "2025-01-02T00:05:58.371579Z",
+        "statement.stored": "2025-01-02T00:05:58.371Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        }
+      }
+    },
+    "missing": {
+      "errors": [
+        "error_missing_client-ip",
+        "error_missing_grade-sn",
+        "error_missing_login-type",
+        "error_missing_school-id-sn"
+      ],
+      "doc": {
+        "statement.id": "606ab010-026b-464d-8e10-bbd0ac03a07a",
+        "statement.timestamp": "2025-01-01T00:00:02.379806Z",
+        "statement.stored": "2025-01-01T00:00:02.380Z",
+        "context.category": [
+          {
+            "id": "http://lecognizer.com/xapi/profiles/session",
+            "objectType": "Activity",
+            "definition": {
+              "name": {
+                "en-US": "Session Profile"
+              },
+              "description": {
+                "en-US": "Session Profile"
+              }
+            }
+          }
+        ],
+        "context.extensions": {
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "sc9e4dc8dcbc56102163ff6f5c6fa304-a84ced319703cf12443c17542e21bbbc2cf5a3313b72adb9a7107526629aa38ecd",
+          "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "ProductName/129 CFNetwork/1568.300.101 Darwin/24.2.0"
+        }
+      }
+    }
+  }
+}
