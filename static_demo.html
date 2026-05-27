@@ -2404,63 +2404,135 @@ Authorization: Bearer {{client_id}}
 
         // Setup interactive spec cards with premium live fetch & robust mock fallbacks
         const SPEC_MOCK_DATA = {
-            "verb_count": { "result": 62, "user_id": "RenaKim", "verb": "interacted" },
+            "verb_count": { "result": 12175, "user_id": "11572119-e321-4bc2-b57c-4189e5f80936", "verb": "played" },
             "watched_media_list": {
-                "media_content": { "0": "(분수)X(자연수)를 알아볼까요?", "1": "(소수)X(자연수)를 알아볼까요?", "2": "오디오 콘텐츠 A" },
-                "media_type": { "0": "영상", "1": "영상", "2": "오디오" }
+                "media_content": { 
+                    "0": "(분수)X(자연수)를 알아볼까요?", 
+                    "1": "3학년 2단원 나눗셈 원리", 
+                    "2": "곱셈의 기초-연산 애니메이션",
+                    "3": "도형의 넓이 구하기 실습 가이드"
+                },
+                "media_type": { "0": "video", "1": "video", "2": "video", "3": "audio" }
             },
-            "watched_media_count": { "video_count": 142, "audio_count": 27 },
+            "watched_media_count": { "video_count": 842, "audio_count": 56, "total_count": 898 },
             "initialized_info": {
-                "total_duration": 4820, "session_id": "session-aidt-4892", "frame_rate": 30,
-                "screen_size": "1920x1080", "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+                "total_duration": 360, "media-session-id": "session-math-grade3-9921", "frame-rate": 29.97,
+                "screen_size": "2560x1440", "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+                "bitrate": "4500kbps", "completion-threshold": 0.9
             },
-            "now_play_time": { "media_id_1": "00:02:15", "media_id_2": "00:10:45" },
+            "now_play_time": { 
+                "https://www.toctocmath.kr/VCS-1-1": "00:03:45", 
+                "https://www.toctocmath.kr/VCS-1-6": "00:01:20",
+                "https://www.toctocmath.kr/VCS-2-3": "00:05:12"
+            },
             "play_pause_time_interval": {
-                "segments": [ { "start": 10, "end": 45, "action": "played" }, { "start": 45, "end": 45, "action": "paused" } ],
-                "progress_rate": 85.5
+                "segments": [ 
+                    { "start": 0, "end": 45.2, "action": "played" }, 
+                    { "start": 45.2, "end": 45.2, "action": "paused" },
+                    { "start": 45.2, "end": 120.5, "action": "played" },
+                    { "start": 120.5, "end": 120.5, "action": "paused" }
+                ],
+                "total_played_time": 120.5,
+                "progress_rate": 33.4
             },
             "seeked_time_interval": {
-                "seek_events": [ { "from": 120, "to": 350, "timestamp": "2026-05-26T13:32:00Z" } ]
-            },
-            "completed_time_interval": { "completion_status": true, "completed_at": "2026-05-26T13:45:00Z", "extra_watch_duration": 180 },
-            "terminated_time_interval": { "final_position": 4820, "termination_reason": "completed" },
-            "interacted_time_interval": { "subtitle_toggled": 3, "speed_changes": [1.0, 1.25, 1.5] },
-            "time_list": {
-                "login_history": [
-                    { "date": "2026-05-24", "login_time": "09:00:12", "logout_time": "12:30:45" },
-                    { "date": "2026-05-25", "login_time": "10:15:00", "logout_time": "11:45:22" }
+                "seek_events": [ 
+                    { "from": 120.5, "to": 280.0, "timestamp": "2026-05-27T10:32:00Z" },
+                    { "from": 310.2, "to": 50.5, "timestamp": "2026-05-27T10:35:12Z" }
                 ]
             },
-            "solved_question_count": { "solved_list": ["Q-101", "Q-102", "Q-105"], "total_completed_solved_count": 3 },
-            "attempt_question_count": { "attempted_list": { "Q-101": 2, "Q-102": 5, "Q-105": 1 } },
-            "extensions": { "grade": "초등 5학년", "subject": "수학", "semester": "1학기", "chapters": ["5. 분수의 곱셈"], "evaluation_type": "형성평가" },
-            "interaction": { "Q-101": "choice", "Q-102": "fill-in", "Q-105": "matching" },
+            "completed_time_interval": { "completion_status": true, "completed_at": "2026-05-27T10:45:00Z", "total_watch_count": 3, "extra_watch_duration": 450 },
+            "terminated_time_interval": { "final_position": 360, "termination_reason": "finished", "session_duration": 372 },
+            "interacted_time_interval": { "subtitle_toggled": 5, "speed_changes": [1.0, 1.25, 1.5, 1.0], "quality_change": "1080p" },
+            "time_list": {
+                "login_history": [
+                    { "date": "2026-05-26", "login_time": "08:55:12", "logout_time": "11:30:45", "duration": "02:35:33" },
+                    { "date": "2026-05-27", "login_time": "10:10:00", "logout_time": "12:15:22", "duration": "02:05:22" }
+                ]
+            },
+            "solved_question_count": { 
+                "solved_list": ["https://www.toctocmath.kr/Q-MATH-511", "https://www.toctocmath.kr/Q-MATH-512", "https://www.toctocmath.kr/Q-MATH-515"], 
+                "total_completed_solved_count": 42 
+            },
+            "attempt_question_count": { 
+                "attempted_list": { 
+                    "https://www.toctocmath.kr/Q-MATH-511": 1, 
+                    "https://www.toctocmath.kr/Q-MATH-512": 4, 
+                    "https://www.toctocmath.kr/Q-MATH-515": 2 
+                },
+                "total_attempts": 158
+            },
+            "extensions": { 
+                "grade": "초등 5학년", "subject": "수학", "semester": "1학기", 
+                "chapters": ["5. 분수의 곱셈", "6. 다각형의 둘레와 넓이"], 
+                "evaluation_type": "단원평가", "difficulty": "상" 
+            },
+            "interaction": { 
+                "https://www.toctocmath.kr/Q-MATH-511": "choice", 
+                "https://www.toctocmath.kr/Q-MATH-512": "fill-in", 
+                "https://www.toctocmath.kr/Q-MATH-515": "matching",
+                "https://www.toctocmath.kr/Q-MATH-520": "long-fill-in"
+            },
             "navigation_list": {
-                "navigation_log": [ { "from": "Main", "to": "MediaList", "time_spent": 12 }, { "from": "MediaList", "to": "Player", "time_spent": 45 } ]
+                "navigation_log": [ 
+                    { "from": "메인 홈", "to": "영상 학습 리스트", "time_spent": 15 }, 
+                    { "from": "영상 학습 리스트", "to": "수학 3학년 플레이어", "time_spent": 425 },
+                    { "from": "수학 3학년 플레이어", "to": "오답 노트", "time_spent": 120 }
+                ]
             },
             "navigation_ratio": {
-                "accumulated_time": { "Main": 360, "MediaList": 1200, "Player": 4820 },
-                "ratios": { "Main": 5.6, "MediaList": 18.8, "Player": 75.6 }
+                "accumulated_time": { "메인 홈": 1250, "영상 학습 리스트": 3600, "플레이어": 15200, "평가": 8500 },
+                "ratios": { "메인 홈": 5.3, "영상 학습 리스트": 15.2, "플레이어": 64.5, "평가": 15.0 }
             },
             "assessment_history": {
-                "grade_stats": { "5": { "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6 } },
-                "overall_correct_rate": 84.6
+                "grade_stats": { 
+                    "5": { 
+                        "subject_stats": { 
+                            "수학": { "correct_rate": 88.5, "total_questions": 450, "solved_questions": 442 },
+                            "과학": { "correct_rate": 92.1, "total_questions": 210, "solved_questions": 198 }
+                        }, 
+                        "overall_correct_rate": 90.3 
+                    } 
+                },
+                "overall_correct_rate": 90.3
             },
             "assessment_grade_history": {
-                "grade": 5, "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6
+                "grade": 5, 
+                "subject_stats": { 
+                    "수학": { "correct_rate": 88.5, "total_questions": 450, "solved_questions": 442 },
+                    "과학": { "correct_rate": 92.1, "total_questions": 210, "solved_questions": 198 }
+                }, 
+                "overall_correct_rate": 90.3
             },
-            "subject_correct_rate": { "grade": 5, "subject": "수학", "chapter_stats": { "분수의곱셈": 91.2, "소수의곱셈": 78.4 }, "overall_correct_rate": 84.6 },
+            "subject_correct_rate": { 
+                "grade": 5, "subject": "수학", 
+                "chapter_stats": { "분수의 곱셈": 94.2, "소수의 곱셈": 82.5, "직육면체": 88.9 }, 
+                "overall_correct_rate": 88.5 
+            },
             "wrong_answers": {
-                "user_id": "RenaKim",
-                "wrong_answers": [ { "question_id": "MATH-05-103", "chapter": "분수의곱셈", "user_answer": "1/2", "correct_answer": "1/4", "solved_at": "2026-05-25T11:20:00Z" } ],
-                "total_wrong_count": 1
+                "user_id": "11572119-e321-4bc2-b57c-4189e5f80936",
+                "wrong_answers": [ 
+                    { "question_id": "MATH-05-103", "question_name": "진분수와 자연수의 곱셈-1", "chapter": "분수의 곱셈", "user_answer": "1/2", "correct_answer": "1/4", "solved_at": "2026-05-27T10:20:00Z" },
+                    { "question_id": "MATH-05-212", "question_name": "다각형의 넓이 심화-4", "chapter": "다각형의 둘레와 넓이", "user_answer": "45", "correct_answer": "60", "solved_at": "2026-05-27T11:05:12Z" }
+                ],
+                "total_wrong_count": 2
             },
-            "wrong_answers_test": { "generated_exam_id": "EXAM-RE-5921", "title": "오답 복습 맞춤형 시험지 (수학)", "questions": ["MATH-05-103", "MATH-05-112"], "creation_time": "2026-05-26T14:40:00Z" },
-            "wrong_answers_chapter_test": { "generated_exam_id": "EXAM-RE-CHAP-1123", "title": "단원별 오답 복습 시험지 (분수의곱셈)", "questions": ["MATH-05-103"], "creation_time": "2026-05-26T14:40:00Z" },
+            "wrong_answers_test": { 
+                "generated_exam_id": "EXAM-RE-5921", "title": "오답 복습 맞춤형 시험지 (수학)", 
+                "questions": ["MATH-05-103", "MATH-05-212", "MATH-05-115"], 
+                "target_user": "11572119-e321-4bc2-b57c-4189e5f80936",
+                "creation_time": "2026-05-27T14:40:00Z" 
+            },
+            "wrong_answers_chapter_test": { 
+                "generated_exam_id": "EXAM-RE-CHAP-1123", "title": "단원별 오답 복습 시험지 (분수의 곱셈)", 
+                "questions": ["MATH-05-103", "MATH-05-108"], 
+                "target_user": "11572119-e321-4bc2-b57c-4189e5f80936",
+                "creation_time": "2026-05-27T14:40:00Z" 
+            },
             "media_heatmap": [
-                { "bucket_start": 0, "bucket_end": 5, "pause_count": 3, "seek_count": 1 },
-                { "bucket_start": 5, "bucket_end": 10, "pause_count": 1, "seek_count": 4 },
-                { "bucket_start": 10, "bucket_end": 15, "pause_count": 8, "seek_count": 2 }
+                { "bucket_start": 0, "bucket_end": 5, "pause_count": 0, "seek_count": 0 },
+                { "bucket_start": 40, "bucket_end": 45, "pause_count": 12, "seek_count": 2, "insight": "인지 부하 집중 구간" },
+                { "bucket_start": 120, "bucket_end": 125, "pause_count": 8, "seek_count": 15, "insight": "탐색 집중 구간" }
             ],
             "assessment_efficiency": [
                 { "question_id": "https://www.toctocmath.kr/AED1228", "question_name": "평가문항 A", "score": 100, "duration_seconds": 15.2, "efficiency": 6.58, "pattern_tag": "우수 🟢", "timestamp": "2026-05-27T10:15:00Z" },
@@ -2612,18 +2684,12 @@ Authorization: Bearer {{client_id}}
 
         // Dynamic High-Fidelity Mock Database Simulator
         function simulateMockData(apiKey, params) {
-            const userId = params.user_id ? params.user_id[0] : "11572119-e321-4bc2-b57c-4189e5f80936";
-            const userNames = {
-                "11572119-e321-4bc2-b57c-4189e5f80936": "김태윤",
-                "50834687-32e4-477b-bff3-da98a2b8dc1c": "서의진",
-                "445d358b-322d-4934-8ba3-248a8d76a3cf": "김지환"
-            };
-            const name = userNames[userId] || "김태윤";
-            const verbs = params.verb || ["played"];
-            const verb = verbs[0];
-            const grade = params.grade ? params.grade[0] : "5";
-            const subject = params.subject ? params.subject[0] : "수학";
-            const dataset = params.dataset ? params.dataset[0] : "lrs_statements_v1";
+            // Get all selected values as arrays
+            const userIds = params.user_id && params.user_id.length > 0 ? params.user_id : ["11572119-e321-4bc2-b57c-4189e5f80936"];
+            const verbs = params.verb && params.verb.length > 0 ? params.verb : ["played"];
+            const grades = params.grade && params.grade.length > 0 ? params.grade : ["5"];
+            const subjects = params.subject && params.subject.length > 0 ? params.subject : ["수학"];
+            const activityIds = params.activity_id && params.activity_id.length > 0 ? params.activity_id : ["https://www.toctocmath.kr/VCS-1-1"];
 
             // 깊은 복사를 통해 글로벌 모의 원본 데이터 손상 방지
             let data = null;
@@ -2633,88 +2699,79 @@ Authorization: Bearer {{client_id}}
 
             switch (apiKey) {
                 case "verb_count":
-                    if (!data) data = { "result": 62, "user_id": userId, "verb": verb };
-                    data.user_id = userId;
-                    data.verb = verb;
-                    return data;
+                    // 여러 개 선택 시 멀티 결과 리스트 반환
+                    const results = [];
+                    userIds.forEach(uid => {
+                        verbs.forEach(v => {
+                            // 실제 학생(김태윤)이면 높은 점수, 아니면 낮은 점수 랜덤 시뮬레이션
+                            const baseCount = uid.includes('11572119') ? 12000 : 150;
+                            results.push({
+                                "user_id": uid,
+                                "verb": v,
+                                "result": Math.floor(baseCount + Math.random() * 500)
+                            });
+                        });
+                    });
+                    return results.length === 1 ? results[0] : { "batch_results": results, "total_count": results.length };
 
                 case "watched_media_count":
-                    if (!data) data = { "video_count": 142, "audio_count": 27 };
-                    data.user_id = userId;
-                    data.verb = verb;
+                    if (data) {
+                        data.user_id = userIds.length === 1 ? userIds[0] : userIds;
+                        data.selected_verbs = verbs;
+                    }
                     return data;
 
                 case "wrong_answers":
-                    if (!data) {
-                        data = {
-                            "user_id": userId,
-                            "wrong_answers": [ { "question_id": "MATH-05-103", "chapter": "분수의곱셈", "user_answer": "1/2", "correct_answer": "1/4", "solved_at": "2026-05-25T11:20:00Z" } ],
-                            "total_wrong_count": 1
-                        };
+                    if (data) {
+                        data.user_id = userIds.length === 1 ? userIds[0] : userIds;
                     }
-                    data.user_id = userId;
                     return data;
 
                 case "subject_correct_rate":
-                    if (!data) {
-                        data = { "grade": 5, "subject": "수학", "chapter_stats": { "분수의곱셈": 91.2, "소수의곱셈": 78.4 }, "overall_correct_rate": 84.6 };
+                    if (data) {
+                        data.user_id = userIds.length === 1 ? userIds[0] : userIds;
+                        data.grade = grades.length === 1 ? parseInt(grades[0]) : grades.map(g => parseInt(g));
+                        data.subject = subjects.length === 1 ? subjects[0] : subjects;
                     }
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
-                    data.subject = subject;
                     return data;
 
                 case "wrong_answers_test":
-                    if (!data) {
-                        data = { "generated_exam_id": "EXAM-RE-5921", "title": "오답 복습 맞춤형 시험지 (수학)", "questions": ["MATH-05-103", "MATH-05-112"], "creation_time": "2026-05-26T14:40:00Z" };
+                    if (data) {
+                        data.user_id = userIds.length === 1 ? userIds[0] : userIds;
+                        data.subject = subjects.length === 1 ? subjects[0] : subjects;
+                        data.creation_time = new Date().toISOString();
                     }
-                    data.title = `${userId} 오답 복습 맞춤형 시험지 (${subject})`;
-                    data.user_id = userId;
-                    data.subject = subject;
-                    data.creation_time = new Date().toISOString();
-                    return data;
-
-                case "wrong_answers_chapter_test":
-                    if (!data) {
-                        data = { "generated_exam_id": "EXAM-RE-CHAP-1123", "title": "단원별 오답 복습 시험지 (분수의곱셈)", "questions": ["MATH-05-103"], "creation_time": "2026-05-26T14:40:00Z" };
-                    }
-                    data.title = `${userId} 단원별 오답 복습 시험지 (${grade}학년 ${subject})`;
-                    data.user_id = userId;
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
-                    data.subject = subject;
-                    data.creation_time = new Date().toISOString();
                     return data;
 
                 case "assessment_grade_history":
-                    if (!data) {
-                        data = { "grade": 5, "subject_stats": { "수학": { "correct_rate": 84.6, "total_questions": 120, "solved_questions": 115 } }, "overall_correct_rate": 84.6 };
+                    if (data) {
+                        data.user_id = userIds.length === 1 ? userIds[0] : userIds;
+                        data.grade = grades.length === 1 ? parseInt(grades[0]) : grades.map(g => parseInt(g));
                     }
-                    data.grade = parseInt(grade.replace('학년', '')) || 5;
                     return data;
 
                 default:
-                    // default 매핑 데이터 처리 (SPEC_MOCK_DATA에 정의된 기타 모든 키 반환)
+                    // default 매핑 데이터 처리
                     if (data) {
-                        // 결과 템플릿에 userId 등이 있으면 삽입
                         if (typeof data === 'object') {
-                            if (data.user_id !== undefined) data.user_id = userId;
-                            if (data.userId !== undefined) data.userId = userId;
-                            if (data.actor !== undefined && typeof data.actor === 'object') {
-                                data.actor.id = userId;
-                            }
+                            if (data.user_id !== undefined) data.user_id = userIds.length === 1 ? userIds[0] : userIds;
+                            if (data.userId !== undefined) data.userId = userIds.length === 1 ? userIds[0] : userIds;
+                            if (data.grade !== undefined) data.grade = grades.length === 1 ? grades[0] : grades;
+                            if (data.subject !== undefined) data.subject = subjects.length === 1 ? subjects[0] : subjects;
                         }
                         return data;
                     }
                     
                     return {
                         "api_name": apiKey,
-                        "message": "xAPI Specification matched & verified (Template Fallback)",
-                        "inputs": {
-                            "user_id": userId,
-                            "grade": grade,
-                            "subject": subject,
-                            "dataset": dataset
-                        },
                         "status": "success",
+                        "inputs": {
+                            "user_ids": userIds,
+                            "verbs": verbs,
+                            "grades": grades,
+                            "subjects": subjects,
+                            "activity_ids": activityIds
+                        },
                         "simulated": true
                     };
             }
