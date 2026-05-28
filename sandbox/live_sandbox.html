@@ -101,25 +101,27 @@
     <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --surface-color: rgba(17, 22, 37, 0.65);
-            --surface-border: rgba(255, 255, 255, 0.08);
-            --primary-glow: rgba(59, 130, 246, 0.15);
-            --primary-color: #3b82f6;
-            --primary-accent: #60a5fa;
+            --bg-color: #030712; /* Deeper Indigo-Black */
+            --surface-color: rgba(17, 24, 39, 0.4); /* Refined Glass */
+            --surface-border: rgba(255, 255, 255, 0.05);
+            --primary-glow: rgba(99, 102, 241, 0.12);
+            --primary-color: #6366f1; /* Indigo 500 */
+            --primary-accent: #818cf8; /* Indigo 400 */
             --success-color: #10b981;
             --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --text-main: #f3f4f6;
+            --danger-color: #f43f5e; /* Rose 500 */
+            --text-main: #f9fafb;
             --text-muted: #9ca3af;
             --font-main: 'Outfit', sans-serif;
             --font-code: 'Fira Code', monospace;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
         body {
@@ -131,17 +133,24 @@
             flex-direction: column;
             overflow-x: hidden;
             background-image: 
-                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 40%);
+            line-height: 1.5;
+        }
+
+        /* Modern Focus Ring */
+        :focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 4px;
         }
 
         header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1.2rem 2.5rem;
-            background: rgba(11, 15, 25, 0.85);
-            backdrop-filter: blur(16px);
+            padding: 1rem 2.5rem;
+            background: rgba(3, 7, 18, 0.7);
+            backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--surface-border);
             position: sticky;
             top: 0;
@@ -155,26 +164,26 @@
         }
 
         .logo-icon {
-            font-size: 2rem;
+            font-size: 2.2rem;
             color: var(--primary-accent);
-            text-shadow: 0 0 10px var(--primary-glow);
+            filter: drop-shadow(0 0 8px var(--primary-glow));
         }
 
         .logo-text {
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--text-main) 30%, var(--primary-accent));
+            background: linear-gradient(135deg, #fff 30%, var(--primary-accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.02em;
         }
 
         .tabs {
             display: flex;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.03);
-            padding: 0.25rem;
-            border-radius: 12px;
+            gap: 0.25rem;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 0.3rem;
+            border-radius: 14px;
             border: 1px solid var(--surface-border);
         }
 
@@ -186,9 +195,9 @@
             font-family: var(--font-main);
             font-size: 0.9rem;
             font-weight: 600;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: var(--transition-smooth);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -196,23 +205,27 @@
 
         .tab-btn:hover {
             color: var(--text-main);
-            background: rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn:active {
+            transform: scale(0.96);
         }
 
         .tab-btn.active {
             color: var(--text-main);
-            background: rgba(59, 130, 246, 0.15);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.25);
+            background: rgba(99, 102, 241, 0.15);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.25);
         }
 
         .status-badge {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            color: var(--primary-accent);
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            color: #34d399;
             padding: 0.45rem 1rem;
             border-radius: 50px;
             font-size: 0.85rem;
@@ -222,66 +235,73 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--primary-accent);
+            background-color: #34d399;
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--primary-accent);
-            animation: pulse 1.8s infinite;
+            box-shadow: 0 0 10px #10b981;
+            animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(96, 165, 250, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(96, 165, 250, 0); }
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
         main {
             flex: 1;
-            padding: 2rem 2.5rem;
-            max-width: 1800px;
+            padding: 2.5rem;
+            max-width: 1600px;
             width: 100%;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
         .tab-content {
             display: none;
-            animation: fadeIn 0.4s ease-out;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .tab-content.active {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .grid-layout {
             display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 1.5rem;
-            height: calc(100vh - 190px);
-            min-height: 700px;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            height: auto;
+            min-height: auto;
+            transition: var(--transition-smooth);
         }
 
         .pane {
             background: var(--surface-color);
             border: 1px solid var(--surface-border);
-            border-radius: 16px;
-            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            backdrop-filter: blur(24px);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: var(--transition-smooth);
+        }
+
+        .pane:hover {
+            border-color: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
         }
 
         .pane-header {
-            padding: 1.1rem 1.5rem;
+            padding: 1.25rem 1.75rem;
             border-bottom: 1px solid var(--surface-border);
             display: flex;
             align-items: center;
@@ -290,120 +310,178 @@
         }
 
         .pane-title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.6rem;
+            gap: 0.7rem;
+            color: var(--text-main);
         }
 
         .pane-body {
-            padding: 1.5rem;
+            padding: 1.75rem;
             flex: 1;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 1.2rem;
+            gap: 1.5rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
 
         label {
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.06em;
         }
 
         textarea {
-            background: #060913;
+            background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--surface-border);
-            color: #38bdf8;
-            padding: 1rem;
-            border-radius: 10px;
+            color: var(--primary-accent);
+            padding: 1.25rem;
+            border-radius: 14px;
             font-family: var(--font-code);
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             outline: none;
-            transition: all 0.25s;
+            transition: var(--transition-smooth);
             resize: none;
-            line-height: 1.5;
-            tab-size: 2;
+            line-height: 1.6;
         }
 
         textarea:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px var(--primary-glow);
+            background: rgba(0, 0, 0, 0.3);
+            box-shadow: 0 0 0 4px var(--primary-glow);
         }
 
         .code-viewer {
             width: 100%;
             height: 100%;
-            background: #060913;
+            background: #0d1117; /* GitHub Dark style */
             border: 1px solid var(--surface-border);
-            border-radius: 10px;
-            color: #34d399;
+            border-radius: 14px;
+            color: #d1d5db;
             font-family: var(--font-code);
             font-size: 0.9rem;
-            padding: 1rem;
+            padding: 1.5rem;
             overflow: auto;
             white-space: pre;
-            line-height: 1.5;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
         }
 
         .preset-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 0.6rem;
             overflow-x: auto;
-            padding-bottom: 0.25rem;
+            padding: 0.2rem 0.2rem 0.6rem 0.2rem;
+            scrollbar-width: none;
         }
 
         .preset-btn {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--surface-border);
             color: var(--text-main);
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
+            padding: 0.6rem 1.1rem;
+            border-radius: 10px;
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.25s;
+            transition: var(--transition-smooth);
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
         }
 
         .preset-btn:hover {
-            background: rgba(59, 130, 246, 0.1);
-            border-color: var(--primary-color);
+            background: rgba(99, 102, 241, 0.1);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .preset-btn:active {
+            transform: scale(0.97);
         }
 
         .preset-btn.active {
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(99, 102, 241, 0.2);
             border-color: var(--primary-color);
             color: var(--primary-accent);
         }
 
         .badge {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--surface-border);
-            padding: 0.25rem 0.6rem;
-            border-radius: 6px;
+            padding: 0.3rem 0.75rem;
+            border-radius: 8px;
             font-size: 0.8rem;
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .badge-success {
-            background: rgba(16, 185, 129, 0.15);
-            border-color: rgba(16, 185, 129, 0.3);
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.2);
             color: #34d399;
         }
+
+        /* Collapsible Pane Styles */
+        .pane.collapsible {
+            transition: var(--transition-smooth);
+        }
+
+        .pane-header.clickable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .pane-header.clickable:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .pane.collapsed {
+            min-height: auto;
+            height: auto !important;
+            flex: none;
+        }
+
+        .pane.collapsed .pane-body {
+            display: none !important;
+        }
+
+        .grid-layout {
+            transition: grid-template-columns 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .grid-layout:has(.pane.collapsed) {
+            grid-template-columns: auto 1fr;
+        }
+
+        /* Skeleton Loading Animation */
+        .skeleton {
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0.03) 25%, 
+                rgba(255, 255, 255, 0.08) 50%, 
+                rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-text { height: 1rem; width: 100%; margin-bottom: 0.8rem; }
+        .skeleton-rect { height: 150px; width: 100%; }
 
         .badge-info {
             background: rgba(59, 130, 246, 0.15);
@@ -1034,13 +1112,13 @@
         </div>
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('sandbox')">
-                <span class="material-symbols-rounded">science</span> 실시간 샌드박스 (Live)
+                <span class="material-symbols-rounded">science</span> 실시간 샌드박스
             </button>
             <button class="tab-btn" onclick="switchTab('spec')">
-                <span class="material-symbols-rounded">receipt_long</span> 명세 및 계획 (api.http)
+                <span class="material-symbols-rounded">receipt_long</span> API
             </button>
-            <button class="tab-btn" onclick="switchTab('audit')">
-                <span class="material-symbols-rounded">analytics</span> LRS 데이터 신뢰도 진단
+            <button class="tab-btn" onclick="switchTab('insights')">
+                <span class="material-symbols-rounded">insights</span> LRS 데이터 인사이트
             </button>
         </div>
         <div class="status-badge">
@@ -1052,16 +1130,15 @@
     <main>
         <!-- TAB 1: LIVE SANDBOX -->
         <div id="sandbox-tab" class="tab-content active">
-            <div class="grid-layout">
-                <!-- LEFT PANE: INPUT & MAPPING -->
-                <div class="pane">
-                    <div class="pane-header">
-                        <div class="pane-title">
-                            <span class="material-symbols-rounded" style="color:var(--primary-accent)">tune</span>
-                            어댑터 데이터 설정 & 입력
-                        </div>
-                    </div>
-                    <div class="pane-body">
+            <div class="spec-container">
+                <!-- ADAPTER INPUT & NORMALIZATION SECTION -->
+                <div class="spec-section" id="input-section">
+                    <h2>
+                        <span class="material-symbols-rounded">tune</span>
+                        어댑터 데이터 설정 & 입력
+                    </h2>
+                    
+                    <div class="pane-body" style="padding: 0; background: transparent;">
                         <!-- Preset selector -->
                         <div class="form-group">
                             <label>테스트 데이터 프리셋 선택 (실제 DB 추출 샘플)</label>
@@ -1088,7 +1165,7 @@
                         </div>
 
                         <!-- Raw Statement Input -->
-                        <div class="form-group" style="flex: 1.2; display: flex; flex-direction: column;">
+                        <div class="form-group" style="flex: 1.2; display: flex; flex-direction: column; margin-top: 1.2rem;">
                             <div class="flex-between">
                                 <label>Raw xAPI Statement JSON (원본 데이터)</label>
                                 <span class="badge badge-info" id="original-verb-badge">playing</span>
@@ -1097,52 +1174,30 @@
                         </div>
 
                         <!-- Mapping config Input -->
-                        <div class="form-group" style="flex: 1.5; display: flex; flex-direction: column;">
+                        <div class="form-group" style="flex: 1.5; display: flex; flex-direction: column; margin-top: 1.2rem;">
                             <label>Mapping Configuration JSON (매핑 어댑터 룰 설정)</label>
                             <textarea class="code-editor" id="config-editor" style="flex: 1; color:#f59e0b" oninput="triggerNormalization()"></textarea>
                         </div>
-                    </div>
-                </div>
 
-                <!-- RIGHT PANE: STANDARD CANONICAL VIEW -->
-                <div class="pane">
-                    <div class="pane-header">
-                        <div class="pane-title">
-                            <span class="material-symbols-rounded" style="color:var(--success-color)">task_alt</span>
-                            정규화 결과: Canonical Model (Pydantic 표준구조)
+                        <!-- Normalization Result (Merged inside) -->
+                        <div class="form-group" style="margin-top: 2rem; border-top: 1px solid var(--surface-border); padding-top: 2rem;">
+                            <div class="flex-between" style="margin-bottom: 1.2rem;">
+                                <div class="pane-title" style="font-size: 1.05rem;">
+                                    <span class="material-symbols-rounded" style="color:var(--success-color)">task_alt</span>
+                                    정규화 결과: Canonical Model
+                                </div>
+                                <span class="badge badge-success">Pydantic Schema Validated</span>
+                            </div>
+                            <pre class="code-viewer" id="canonical-viewer" style="height: 450px;">Wait...</pre>
                         </div>
-                        <span class="badge badge-success">Pydantic Schema Validated</span>
                     </div>
-                    <div class="pane-body" style="padding: 1rem; background: #060913;">
-                        <pre class="code-viewer" id="canonical-viewer">Wait...</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: SPECIFICATION & ROADMAP -->
-        <div id="spec-tab" class="tab-content">
-            <div class="spec-container">
-                <div class="spec-header">
-                    <h1>xapi_api.http 명세 및 구현 가이드</h1>
-                    <p style="color:var(--text-muted)">REST Client (VS Code/IntelliJ) 파일과 100% 호환되며 바로 열어 테스트할 수 있는 포맷입니다.</p>
                 </div>
 
-                <div class="spec-section" style="display: none;">
-                    <h2>
-                        <span class="material-symbols-rounded">code</span>
-                        xapi_api.http REST API 클라이언트 명세 (Live Code Viewer)
-                    </h2>
-                    <p>로컬 FastAPI 백엔드와 상호작용하기 위한 모든 REST API 명세 파일 내용입니다. VS Code REST Client 나 IntelliJ HTTP Client에서 직접 실행할 수 있습니다.</p>
-                    <div style="margin-top: 1rem; border: 1px solid var(--surface-border); border-radius: 10px; background: #030712; padding: 1.2rem; overflow-x: auto; max-height: 500px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
-                        <pre id="http-code-display" style="margin: 0; font-family: var(--font-code); font-size: 0.8rem; line-height: 1.5; color: #fbbf24; text-align: left; white-space: pre;"></pre>
-                    </div>
-                </div>
-                
-                <div class="spec-section">
+                <!-- Architecture Diagram -->
+                <div class="spec-section" id="architecture-section">
                     <h2>
                         <span class="material-symbols-rounded">schema</span>
-                        아키텍처 핵심 아이디어: Canonical Data Model (표준 내부 모델)
+                        아키텍처
                     </h2>
                     <p>공통 분석 및 검증 함수들이 업체에 무관하게 항상 재사용될 수 있도록, 어댑터가 원본 xAPI 데이터를 단일한 표준 모델로 실시간 변환(Mapping) 및 검증을 완료한 후 코어 로직으로 흐르도록 아키텍처가 구성됩니다.</p>
                     <div class="flow-diagram">
@@ -1237,16 +1292,218 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="spec-section">
+        <!-- TAB 2: LRS DATA INSIGHTS -->
+        <div id="insights-tab" class="tab-content">
+            <!-- Unified Data Quality Audit & Insights -->
+            <div class="spec-container" style="padding: 2rem;">
+                <div class="spec-header" style="border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                    <h1 style="font-size: 1.8rem; display: flex; align-items: center; gap: 0.6rem;">
+                        <span class="material-symbols-rounded" style="color: #fbbf24; font-size: 2.2rem;">security_metrics</span>
+                        LRS 행동 데이터 통합 진단 & EdTech Insights
+                    </h1>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.3rem;">MongoDB의 3대 핵심 LRS 데이터베이스를 정밀 진단(Audit)하여 무결성 비율과 학습자 행동 유형을 정밀 분류한 결과입니다.</p>
+                </div>
+
+                <!-- 1. Database comparison row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; margin-bottom: 1.5rem;">
+                    <!-- A. LRS card -->
+                    <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #60a5fa; background: rgba(59,130,246,0.15); padding: 2px 8px; border-radius: 50px;">메인 운영 DB</span>
+                            <span class="material-symbols-rounded" style="color: #60a5fa; font-size: 1.3rem;">database</span>
+                        </div>
+                        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top:0.2rem;">Database: lrs</h4>
+                        <div id="lrs-count-val" style="font-size: 1.8rem; font-weight: 800; color: #60a5fa; margin: 0.2rem 0;">743,771,916 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span></div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">똑똑수학(toctocmath) 실서비스 대용량 학습 데이터. 실제 학생 4,933명이 고밀도 상호작용 수행.</p>
+                    </div>
+
+                    <!-- B. LRS_TEST card -->
+                    <div style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #f59e0b; background: rgba(245,158,11,0.15); padding: 2px 8px; border-radius: 50px;">검증용 로컬 DB</span>
+                            <span class="material-symbols-rounded" style="color: #f59e0b; font-size: 1.3rem;">rule_folder</span>
+                        </div>
+                        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top:0.2rem;">Database: lrs_test</h4>
+                        <div id="lrs-test-count-val" style="font-size: 1.8rem; font-weight: 800; color: #f59e0b; margin: 0.2rem 0;">1,152,116 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span></div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">UUID 단발성 난수 성능 테스트 중심의 유효성 검증 DB. 99.9%가 일회성 더미 트래픽으로 구성.</p>
+                    </div>
+
+                    <!-- C. KT_LRS card -->
+                    <div style="background: rgba(16, 185, 129, 0.03); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 12px; padding: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.15); padding: 2px 8px; border-radius: 50px;">Caliper 표준 DB</span>
+                            <span class="material-symbols-rounded" style="color: #10b981; font-size: 1.3rem;">account_balance</span>
+                        </div>
+                        <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-main); margin-top:0.2rem;">Database: kt_lrs</h4>
+                        <div id="kt-lrs-count-val" style="font-size: 1.8rem; font-weight: 800; color: #10b981; margin: 0.2rem 0;">3,699 <span style="font-size:0.9rem; font-weight:500; color:var(--text-muted);">건</span></div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">온택트 에듀 Caliper 연동 데이터. IMS Caliper 글로벌 로그 규격을 준수한 학습 포털 로그.</p>
+                    </div>
+                </div>
+
+                <!-- 2. Detailed Data Table -->
+                <div class="spec-section" style="margin-top: 0rem; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1.05rem; font-weight: 600; color: var(--primary-accent); margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;">
+                        <span class="material-symbols-rounded" style="font-size: 1.25rem;">fact_check</span>
+                        메인 DB(lrs) 데이터 분류 및 분석 진단 (Strict Ingestion Audit Details)
+                    </h3>
+                    <div style="overflow-x: auto; border: 1px solid var(--surface-border); border-radius: 10px; background: rgba(3, 7, 18, 0.4); box-shadow: inset 0 2px 10px rgba(0,0,0,0.4);">
+                        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.82rem; line-height: 1.5;">
+                            <thead>
+                                <tr style="background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--surface-border); color: var(--text-main);">
+                                    <th style="padding: 0.75rem 1rem; font-weight: 600;">데이터 분류 및 신뢰 등급</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 600;">대표 Actor ID / 계정명</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 600;">로그 건수</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 600;">행동(Verbs) 가짓수</th>
+                                    <th style="padding: 0.75rem 1rem; font-weight: 600;">데이터 성격 및 신뢰도 판정</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(59, 130, 246, 0.03);">
+                                    <td style="padding: 0.75rem 1rem; color: #10b981; font-weight: 700; display:flex; align-items:center; gap:0.25rem;"><span style="width: 6px; height: 6px; background: #10b981; border-radius:50%;"></span>🟢 실제 학생 데이터 (Real)</td>
+                                    <td style="padding: 0.75rem 1rem; font-family: var(--font-code); color: var(--text-main);">김태윤 / 서의진 / 김지환 등 (총 4,933명)</td>
+                                    <td style="padding: 0.75rem 1rem; font-weight: 600; color: #60a5fa;">인당 평균 2,000건 이상</td>
+                                    <td style="padding: 0.75rem 1rem; color: var(--primary-accent); font-weight: 600;">14 ~ 17 종 (초고밀도)</td>
+                                    <td style="padding: 0.75rem 1rem; color: #9ca3af;">똑똑수학 플랫폼에서 실제 교육 과정을 공부한 **최고 신뢰 등급 진짜 학생**</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(245, 158, 11, 0.02);">
+                                    <td style="padding: 0.75rem 1rem; color: #f59e0b; font-weight: 700;"><span style="display:inline-block; width: 6px; height: 6px; background: #f59e0b; border-radius:50%; margin-right:4px;"></span>🟡 테스트 계정 데이터 (Tester)</td>
+                                    <td style="padding: 0.75rem 1rem; font-family: var(--font-code); color: #f87171;">학생001 / 난학생이다 / student-02 등 (총 282명)</td>
+                                    <td style="padding: 0.75rem 1rem; font-weight: 600;">인당 1,000 ~ 4,000건</td>
+                                    <td style="padding: 0.75rem 1rem; color: var(--warning-color); font-weight: 600;">14 ~ 16 종</td>
+                                    <td style="padding: 0.75rem 1rem; color: var(--text-muted);">**⚠️ 가짜 데이터**. 다차원 학습 검증 목적으로 개발자가 직접 로깅한 테스트 전용 계정</td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid var(--surface-border); background: rgba(239, 68, 68, 0.03);">
+                                    <td style="padding: 0.75rem 1rem; color: #ef4444; font-weight: 700;"><span style="display:inline-block; width: 6px; height: 6px; background: #ef4444; border-radius:50%; margin-right:4px;"></span>🔴 부하 봇 데이터 (Load Bot)</td>
+                                    <td style="padding: 0.75rem 1rem; font-family: var(--font-code); color: #f87171;">UUID 일회성 계정군 (약 7억 4,000만 명)</td>
+                                    <td style="padding: 0.75rem 1rem; font-weight: 600;">계정당 딱 1건</td>
+                                    <td style="padding: 0.75rem 1rem; color: #ef4444; font-weight: 600;">1 종 (played)</td>
+                                    <td style="padding: 0.75rem 1rem; color: #fca5a5;">**⚠️ 성능 테스트 봇**. 시스템 부하 주입 목적으로 생성된 무의미한 로깅 노이즈군</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Live Dynamic Preset Accounts Sub-section -->
+                    <div id="live-preset-metrics-section" style="margin-top: 1.5rem; border-top: 1px dashed rgba(255,255,255,0.08); padding-top: 1.2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); display:flex; align-items:center; gap:0.4rem; margin:0;">
+                                <span class="material-symbols-rounded" style="color: #60a5fa; font-size: 1.2rem;">query_stats</span>
+                                실시간 인덱스 집계 결과 (Live Preset lookups)
+                            </h4>
+                            <span id="live-audit-status" style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 50px; display:flex; align-items:center; gap:0.25rem;">
+                                <span style="width: 6px; height: 6px; background: var(--text-muted); border-radius:50%;"></span>오프라인 모드
+                            </span>
+                        </div>
+                        <div style="overflow-x: auto; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; background: rgba(3, 7, 18, 0.2);">
+                            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.78rem; line-height: 1.5;">
+                                <thead>
+                                    <tr style="background: rgba(255,255,255,0.01); border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text-muted);">
+                                        <th style="padding: 0.5rem 0.75rem; font-weight: 600;">계정 구분</th>
+                                        <th style="padding: 0.5rem 0.75rem; font-weight: 600;">학생명 / ID</th>
+                                        <th style="padding: 0.5rem 0.75rem; font-weight: 600;">계정 UUID (indexed)</th>
+                                        <th style="padding: 0.5rem 0.75rem; font-weight: 600; text-align: right;">실시간 로그 수</th>
+                                        <th style="padding: 0.5rem 0.75rem; font-weight: 600; text-align: right;">행동 Verbs 종수</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="live-preset-tbody">
+                                    <tr>
+                                        <td colspan="5" style="padding: 1.5rem; text-align: center; color: var(--text-muted);">
+                                            실시간 데이터베이스 진단 정보가 아직 로드되지 않았습니다.
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. EdTech Active Verbs chart-bar simulation -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <!-- A. Verb active -->
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <span class="material-symbols-rounded" style="color: var(--primary-accent); font-size: 1.2rem;">insights</span>
+                            핵심 행동(Verbs) 활동 분포 (실제 학생 데이터 추출)
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size: 0.78rem; margin-bottom: 0.2rem;">
+                                    <span style="font-weight: 600; color: var(--text-main);">navigated (이동 및 학습 네비게이션)</span>
+                                    <span style="color: var(--primary-accent); font-weight: 700;">64.2%</span>
+                                </div>
+                                <div style="height: 6px; width: 100%; background: #030712; border-radius: 10px; overflow: hidden;"><div style="width: 64.2%; height:100%; background: var(--primary-color);"></div></div>
+                            </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size: 0.78rem; margin-bottom: 0.2rem;">
+                                    <span style="font-weight: 600; color: var(--text-main);">played / paused / seeked (미디어 제어 행동)</span>
+                                    <span style="color: var(--success-color); font-weight: 700;">22.8%</span>
+                                </div>
+                                <div style="height: 6px; width: 100%; background: #030712; border-radius: 10px; overflow: hidden;"><div style="width: 22.8%; height:100%; background: var(--success-color);"></div></div>
+                            </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size: 0.78rem; margin-bottom: 0.2rem;">
+                                    <span style="font-weight: 600; color: var(--text-main);">started / submitted / completed (평가 풀이 이력)</span>
+                                    <span style="color: var(--warning-color); font-weight: 700;">11.5%</span>
+                                </div>
+                                <div style="height: 6px; width: 100%; background: #030712; border-radius: 10px; overflow: hidden;"><div style="width: 11.5%; height:100%; background: var(--warning-color);"></div></div>
+                            </div>
+                            <div>
+                                <div style="display:flex; justify-content:space-between; font-size: 0.78rem; margin-bottom: 0.2rem;">
+                                    <span style="font-weight: 600; color: var(--text-main);">logged-in / logged-out (시스템 로그인 행동)</span>
+                                    <span style="color: #a855f7; font-weight: 700;">1.5%</span>
+                                </div>
+                                <div style="height: 6px; width: 100%; background: #030712; border-radius: 10px; overflow: hidden;"><div style="width: 1.5%; height:100%; background: #a855f7; min-width:3px;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- B. Learner Personas -->
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--surface-border); border-radius: 12px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; flex-direction: column; gap: 0.8rem;">
+                        <h3 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.4rem;">
+                            <span class="material-symbols-rounded" style="color: var(--primary-accent); font-size: 1.2rem;">groups</span>
+                            데이터 분석 기반 학습자 행동 퍼소나 (Personas)
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.8rem;">
+                            <div style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px; padding: 0.5rem 0.75rem;">
+                                <strong style="color: #34d399; display:block; margin-bottom:0.1rem;">🎯 실제 자기주도적 초등 학습자 (Consistent Achiever)</strong>
+                                <span style="color: var(--text-muted); font-size: 0.75rem;">예시: `김태윤`, `서의진`. 실제 똑똑수학에서 영상을 보고 문제를 풀며, 오답 노트를 재응시하는 전형적인 성실형 아동 그룹.</span>
+                            </div>
+                            <div style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 8px; padding: 0.5rem 0.75rem;">
+                                <strong style="color: #fbbf24; display:block; margin-bottom:0.1rem;">🧪 기능 점검용 시뮬레이터 (Tester Simulation)</strong>
+                                <span style="color: var(--text-muted); font-size: 0.75rem;">예시: `학생001`, `난학생이다`, `student-02`. 단기간에 다차원 행동을 연속 발생시켜 시스템 규격 통과를 테스트한 로깅 그룹.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: SPECIFICATION & ROADMAP -->
+        <div id="spec-tab" class="tab-content">
+            <div class="spec-container">
+                <div class="spec-section" style="display: none;">
+                    <h2>
+                        <span class="material-symbols-rounded">code</span>
+                        xapi_api.http REST API 클라이언트 명세 (Live Code Viewer)
+                    </h2>
+                    <p>로컬 FastAPI 백엔드와 상호작용하기 위한 모든 REST API 명세 파일 내용입니다. VS Code REST Client 나 IntelliJ HTTP Client에서 직접 실행할 수 있습니다.</p>
+                    <div style="margin-top: 1rem; border: 1px solid var(--surface-border); border-radius: 10px; background: #030712; padding: 1.2rem; overflow-x: auto; max-height: 500px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.6);">
+                        <pre id="http-code-display" style="margin: 0; font-family: var(--font-code); font-size: 0.8rem; line-height: 1.5; color: #fbbf24; text-align: left; white-space: pre;"></pre>
+                    </div>
+                </div>
+                
+                <div class="spec-section" id="basic-apis-section">
                     <h2>
                         <span class="material-symbols-rounded">check_circle</span>
-                        Notion 규격 기본 API 포팅 완료 현황 (100% 탑재)
+                        기본 API
                     </h2>
-                    <p>Notion에 구상된 프로파일별 기본 데이터 분석 함수 총 20종이 API 파이프라인 엔진 내에 전격 탑재되었습니다. 이들은 <code>pandas_helper</code>를 연동하여 Pandas 의존성 없이 가볍고 정밀하게 대량의 사전식(JSON) 데이터셋을 정규화/분석합니다.</p>
+                    <p>프로파일별 기본 데이터 분석 함수 총 <span id="basic-api-total-count" style="color:var(--primary-accent); font-weight:700;">0</span>종이 API 파이프라인 엔진 내에 전격 탑재되었습니다. 이들은 <code>pandas_helper</code>를 연동하여 Pandas 의존성 없이 가볍고 정밀하게 대량의 사전식(JSON) 데이터셋을 정규화/분석합니다.</p>
                     
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">movie</span> Media Profile (10종)
+                        <span class="material-symbols-rounded">movie</span> Media Profile (<span class="group-count" data-group="media">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1312,7 +1569,7 @@
                     </div>
 
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">schedule</span> Session Profile (2종)
+                        <span class="material-symbols-rounded">schedule</span> Session Profile (<span class="group-count" data-group="session">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1328,7 +1585,7 @@
                     </div>
 
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">assignment_turned_in</span> Assessment Profile (5종)
+                        <span class="material-symbols-rounded">assignment_turned_in</span> Assessment Profile (<span class="group-count" data-group="assessment">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1364,7 +1621,7 @@
                     </div>
 
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">explore</span> Navigation Profile (3종)
+                        <span class="material-symbols-rounded">explore</span> Navigation Profile (<span class="group-count" data-group="navigation">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1390,15 +1647,15 @@
                     </div>
                 </div>
 
-                <div class="spec-section">
+                <div class="spec-section" id="applied-apis-section">
                     <h2>
                         <span class="material-symbols-rounded">analytics</span>
-                        [NEW] 응용 분석 API 구현 완료 현황 (100% 탑재)
+                        응용 분석 API
                     </h2>
-                    <p>유저의 오답 노트를 자동 구성하고 학년/과목/단원(태그)별 분석과 개인 맞춤형 복습 시험지 생성을 수행하는 고도화된 응용 API 9종이 <code>applied.py</code>에 새롭게 추가되었습니다.</p>
+                    <p>유저의 오답 노트를 자동 구성하고 학년/과목/단원(태그)별 분석과 개인 맞춤형 복습 시험지 생성을 수행하는 고도화된 응용 API <span id="applied-api-total-count" style="color:var(--success-color); font-weight:700;">0</span>종이 <code>applied.py</code>에 새롭게 추가되었습니다.</p>
                     
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">percent</span> 학습 정답률 통계 (4종)
+                        <span class="material-symbols-rounded">percent</span> 학습 정답률 통계 (<span class="group-count" data-group="accuracy">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1424,7 +1681,7 @@
                     </div>
 
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">menu_book</span> 오답 분석 및 상세 목록 (3종)
+                        <span class="material-symbols-rounded">menu_book</span> 오답 분석 및 상세 목록 (<span class="group-count" data-group="wrong_answers">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -1445,7 +1702,7 @@
                     </div>
 
                     <div class="spec-section-subtitle">
-                        <span class="material-symbols-rounded">quiz</span> 복습 시험지 자동 생성 (2종)
+                        <span class="material-symbols-rounded">quiz</span> 복습 시험지 자동 생성 (<span class="group-count" data-group="review">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
@@ -2182,7 +2439,7 @@
             }
             
             // Trigger dynamic live DB diagnostics load
-            if (tabId === 'audit') {
+            if (tabId === 'insights') {
                 loadLiveDiagnostics();
             }
         }
@@ -2861,7 +3118,42 @@ Authorization: Bearer {{client_id}}
             loadHttpDisplay();
             setupInteractiveSpecCards();
             setupSpecSectionToggles();
+            updateApiCounts();
         };
+
+        function updateApiCounts() {
+            // 1. Update Section Totals
+            const basicSection = document.getElementById('basic-apis-section');
+            if (basicSection) {
+                const count = basicSection.querySelectorAll('.spec-card').length;
+                const totalEl = document.getElementById('basic-api-total-count');
+                if (totalEl) totalEl.textContent = count;
+            }
+            
+            const appliedSection = document.getElementById('applied-apis-section');
+            if (appliedSection) {
+                const count = appliedSection.querySelectorAll('.spec-card').length;
+                const totalEl = document.getElementById('applied-api-total-count');
+                if (totalEl) totalEl.textContent = count;
+            }
+            
+            // 2. Update Group Subtitles (e.g. Media Profile (12종))
+            const groupSpans = document.querySelectorAll('.group-count');
+            groupSpans.forEach(span => {
+                const subtitle = span.closest('.spec-section-subtitle');
+                if (subtitle) {
+                    let next = subtitle.nextElementSibling;
+                    // Find the spec-grid that follows this subtitle
+                    while (next && !next.classList.contains('spec-grid')) {
+                        next = next.nextElementSibling;
+                    }
+                    if (next) {
+                        const count = next.querySelectorAll('.spec-card').length;
+                        span.textContent = count;
+                    }
+                }
+            });
+        }
 
         function setupSpecSectionToggles() {
             const sections = document.querySelectorAll('.spec-section');
@@ -2878,8 +3170,12 @@ Authorization: Bearer {{client_id}}
                     <span class="material-symbols-rounded toggle-icon">expand_more</span>
                 `;
 
-                // Collapse all by default except the very first visible diagram section
-                if (index > 1) {
+                // Expand by default:
+                // 1. Audit sections (LRS Data Insights tab)
+                // 2. Main API sections (API tab)
+                // Collapse only if it's not one of the main sections (index > 10, or specifically marked)
+                // Actually, let's keep all main sections expanded for now.
+                if (index > 10) {
                     section.classList.add('collapsed');
                 }
 
@@ -2901,6 +3197,18 @@ Authorization: Bearer {{client_id}}
                 icon.textContent = 'expand_less';
             }
         }
+
+        function togglePane(paneId) {
+            const pane = document.getElementById(paneId);
+            if (!pane) return;
+
+            const isCollapsed = pane.classList.toggle('collapsed');
+            const icon = pane.querySelector('.toggle-icon');
+            
+            if (icon) {
+                icon.style.transform = isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)';
+            }
+        }
     </script>
 
     <!-- PREMIUM DIALOG MODAL FOR INTERACTIVE API RUN -->
@@ -2917,8 +3225,7 @@ Authorization: Bearer {{client_id}}
                 <button class="modal-close-btn" onclick="closeApiModal()">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <label style="color: var(--primary-accent); margin-bottom: 0.6rem; font-weight: 600; font-size: 0.85rem;">실제 데이터에 존재하는 값으로 파라미터 구성</label>
+                <div class="form-group">                    
                     <div id="modal-parameters-container" class="params-checkbox-grid">
                         <!-- Dynamic Checkboxes will be injected here -->
                     </div>
