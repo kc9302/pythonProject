@@ -1144,22 +1144,22 @@
                             <label>테스트 데이터 프리셋 선택 (실제 DB 추출 샘플)</label>
                             <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; width: 100%;">
                                 <button class="preset-btn active" onclick="loadPreset('aidtbook')">
-                                    <span class="material-symbols-rounded">play_circle</span> 똑똑수학 미디어 재생 (김태윤)
+                                    <span class="material-symbols-rounded">play_circle</span> [미디어 추천] 실학생 곽소율
                                 </button>
                                 <button class="preset-btn" onclick="loadPreset('hy')">
-                                    <span class="material-symbols-rounded">assignment_turned_in</span> 똑똑수학 형성평가 제출 (서의진)
-                                </button>
-                                <button class="preset-btn" onclick="loadPreset('lecognizer')">
-                                    <span class="material-symbols-rounded">login</span> 똑똑수학 시스템 로그인 (김지환)
-                                </button>
-                                <button class="preset-btn" onclick="loadPreset('paused_event')">
-                                    <span class="material-symbols-rounded">pause_circle</span> 똑똑수학 미디어 일시정지 (서의진)
+                                    <span class="material-symbols-rounded">assignment_turned_in</span> [평가 추천] 실학생 김수혜
                                 </button>
                                 <button class="preset-btn" onclick="loadPreset('navigated_event')">
-                                    <span class="material-symbols-rounded">explore</span> 똑똑수학 학습 화면 이동 (김지환)
+                                    <span class="material-symbols-rounded">explore</span> [이동 추천] 실학생 문주훈
                                 </button>
-                                <button class="preset-btn" onclick="loadPreset('fake_test')">
-                                    <span class="material-symbols-rounded">report</span> [경고] 가짜 테스트 계정 (학생001)
+                                <button class="preset-btn" onclick="loadPreset('lecognizer')">
+                                    <span class="material-symbols-rounded">person</span> [표준] 실학생 김태윤
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('interacted_star')">
+                                    <span class="material-symbols-rounded">settings_accessibility</span> [인터랙션 추천] 실학생 김윤찬
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('no_data')">
+                                    <span class="material-symbols-rounded">database_off</span> [테스트] 데이터 없는 계정
                                 </button>
                             </div>
                         </div>
@@ -1503,13 +1503,29 @@
                     <p>프로파일별 기본 데이터 분석 함수 총 <span id="basic-api-total-count" style="color:var(--primary-accent); font-weight:700;">0</span>종 </p>
                     
                     <div class="spec-section-subtitle">
+                        <span class="material-symbols-rounded">groups</span> Common Profile (<span class="group-count" data-group="common">0</span>종)
+                    </div>
+                    <div class="spec-grid">
+                        <div class="spec-card">
+                            <div class="spec-card-title">active_days_count <span class="mini-badge mini-badge-primary">Basic</span></div>
+                            <div class="spec-card-desc">유저가 실제로 학습 활동을 수행한 총 날짜 수(출석일)를 반환합니다. 데이터가 없으면 '저장소에 데이터가 없습니다'가 출력됩니다.</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">verb_distribution <span class="mini-badge mini-badge-primary">Basic</span></div>
+                            <div class="spec-card-desc">유저가 발생시킨 전체 행동(Verbs)의 종류별 횟수와 비중을 추출합니다. 데이터가 없으면 '저장소에 데이터가 없습니다'가 출력됩니다.</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
+                    </div>
+
+                    <div class="spec-section-subtitle">
                         <span class="material-symbols-rounded">movie</span> Media Profile (<span class="group-count" data-group="media">0</span>종)
                     </div>
                     <div class="spec-grid">
                         <div class="spec-card">
                             <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저의 미디어 특정 verb(played, paused 등)의 발생 빈도수를 구합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: int</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">watched_media_list <span class="mini-badge mini-badge-primary">Basic</span></div>
@@ -1641,7 +1657,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">media_heatmap <span class="mini-badge mini-badge-success">Applied</span></div>
                             <div class="spec-card-desc">특정 미디어 콘텐츠(activity_id) 구간별 pause 및 seek 발생 빈도를 5초 간격으로 분석하여 인지 병목 구간을 진단합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: list</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">detect_frustration <span class="mini-badge mini-badge-success">Applied</span></div>
@@ -1651,7 +1667,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">assessment_efficiency <span class="mini-badge mini-badge-success">Applied</span></div>
                             <div class="spec-card-desc">문항별 획득 점수와 소요 시간을 초 단위로 계산하여 효율 지수를 도출하고 행동 패턴(찍기 의심 등)을 진단합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: list</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">predict_churn <span class="mini-badge mini-badge-success">Applied</span></div>
@@ -1931,44 +1947,17 @@
         // MOCK REAL STATEMENTS FROM DB
         const PRESETS = {
             aidtbook: {
-                name: "똑똑수학 미디어 재생 (김태윤)",
+                name: "[미디어 추천] 실학생 곽소율",
                 raw: {
-                    "_id": "681c03d75f9d2bd429d6619e",
                     "organisation": "똑똑수학_AI_플랫폼",
                     "stored": "2026-05-27T10:00:00+09:00",
                     "statement": {
-                        "id": "7e1d645d-6d80-415f-95bb-a3b0ee995f01",
                         "actor": {
-                            "objectType": "Agent",
-                            "name": "김태윤",
-                            "account": {
-                                "name": "11572119-e321-4bc2-b57c-4189e5f80936",
-                                "homePage": "http://aidtbook.kr/xapi/profiles/media"
-                            }
+                            "name": "곽소율",
+                            "account": { "name": "0e1b4e3b-3bd4-40d0-859c-317199227f1d" }
                         },
-                        "verb": {
-                            "id": "http://aidtbook.kr/xapi/profiles/media/verbs/played",
-                            "display": {
-                                "ko-KR": "재생함"
-                            }
-                        },
-                        "object": {
-                            "id": "http://aidtbook.kr/resources/media/grade3-math-unit2-lesson1",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://aidtbook.kr/xapi/activity-type/media",
-                                "name": {
-                                    "ko-KR": "초등 수학 3학년 2단원 - 나눗셈 미디어 영상"
-                                }
-                            }
-                        },
-                        "context": {
-                            "extensions": {
-                                "http://aidtbook.kr/xapi/profiles/media/extensions/context/play-speed": 1.0,
-                                "http://aidtbook.kr/xapi/profiles/media/extensions/context/volume": 80
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:00:00+09:00"
+                        "verb": { "id": "http://lecognizer.com/xapi/profiles/media/1.0/verbs/played" },
+                        "object": { "id": "https://www.toctocmath.kr/resources/media/M5-U1-L3" }
                     }
                 },
                 config: {
@@ -1976,273 +1965,109 @@
                     "mappings": {
                         "actor_id_path": "statement.actor.account.name",
                         "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://aidtbook.kr/xapi/profiles/media/verbs/played": "played"
-                        },
-                        "target_id_path": "statement.object.id",
-                        "target_type_path": "statement.object.definition.type"
+                        "verb_mapping": { "http://lecognizer.com/xapi/profiles/media/1.0/verbs/played": "played" }
                     }
                 }
             },
             hy: {
-                name: "똑똑수학 형성평가 제출 (서의진)",
+                name: "[평가 추천] 실학생 김수혜",
                 raw: {
-                    "_id": "67aaeb29ca46f7e7e0632344",
                     "stored": "2026-05-27T10:05:00+09:00",
                     "statement": {
-                        "id": "assessment-submitted-54b5df59",
                         "actor": {
-                            "objectType": "Agent",
-                            "name": "서의진",
-                            "account": {
-                                "name": "54b5df59-a2a4-4cfd-9656-788c0356c9a3",
-                                "homePage": "http://hy.com/students"
-                            }
+                            "name": "김수혜",
+                            "account": { "name": "a0aa2d97-16e2-40af-9716-c605133447cb" }
                         },
-                        "verb": {
-                            "id": "http://hy.com/xapi/profiles/assessment/1.0/verbs/submitted",
-                            "display": {
-                                "ko-KR": "제출함"
-                            }
-                        },
-                        "object": {
-                            "id": "http://hy.com/activities/quiz/grade3-multiplication-test",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://hy.com/xapi/activity-type/assessment",
-                                "name": {
-                                    "ko-KR": "3학년 곱셈 알고리즘 형성평가"
-                                }
-                            }
-                        },
-                        "context": {
-                            "extensions": {
-                                "http://hy.com/xapi/profiles/assessment/extensions/context/score": 90,
-                                "http://hy.com/xapi/profiles/assessment/extensions/context/duration": "PT3M15S"
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:05:00.000Z"
+                        "verb": { "id": "http://lecognizer.com/xapi/profiles/assessment/1.0/verbs/submitted" },
+                        "object": { "id": "https://www.toctocmath.kr/activities/quiz/Q5-1-102" }
                     }
                 },
                 config: {
                     "client_id": "hy_learning_service",
                     "mappings": {
                         "actor_id_path": "statement.actor.account.name",
-                        "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://hy.com/xapi/profiles/assessment/1.0/verbs/submitted": "completed"
+                        "actor_name_path": "statement.actor.name"
+                    }
+                }
+            },
+            navigated_event: {
+                name: "[이동 추천] 실학생 문주훈",
+                raw: {
+                    "stored": "2026-05-27T10:20:00+09:00",
+                    "statement": {
+                        "actor": {
+                            "name": "문주훈",
+                            "account": { "name": "4a442b04-b04c-46f9-8b6c-77fe0905babc" }
                         },
-                        "target_id_path": "statement.object.id",
-                        "target_type_path": "statement.object.definition.type"
+                        "verb": { "id": "http://lecognizer.com/xapi/profiles/navigation/1.0/verbs/navigated" },
+                        "object": { "id": "https://www.toctocmath.kr/resources/page/learning-home" }
+                    }
+                },
+                config: {
+                    "client_id": "aidtbook_service",
+                    "mappings": {
+                        "actor_id_path": "statement.actor.account.name",
+                        "actor_name_path": "statement.actor.name"
                     }
                 }
             },
             lecognizer: {
-                name: "똑똑수학 시스템 로그인 (김지환)",
+                name: "[표준] 실학생 김태윤",
                 raw: {
                     "stored": "2026-05-27T10:10:00+09:00",
                     "statement": {
-                        "id": "session-logged-in-445d358b",
                         "actor": {
-                            "objectType": "Agent",
-                            "name": "김지환",
-                            "account": {
-                                "name": "445d358b-322d-4934-8ba3-248a8d76a3cf",
-                                "homePage": "http://lecognizer.com/users"
-                            }
+                            "name": "김태윤",
+                            "account": { "name": "11572119-e321-4bc2-b57c-4189e5f80936" }
                         },
-                        "verb": {
-                            "id": "http://lecognizer.com/xapi/profiles/session/1.0/verbs/logged-in",
-                            "display": {
-                                "ko-KR": "로그인함"
-                            }
-                        },
-                        "object": {
-                            "id": "http://lecognizer.com/xapi/activity/main-dashboard",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://lecognizer.com/xapi/activity-type/application"
-                            }
-                        },
-                        "context": {
-                            "extensions": {
-                                "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id": "session-xyz-987",
-                                "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip": "192.168.0.50",
-                                "http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:10:00.000Z"
+                        "verb": { "id": "http://lecognizer.com/xapi/profiles/session/1.0/verbs/logged-in" },
+                        "object": { "id": "http://lecognizer.com/xapi/activity/main-dashboard" }
                     }
                 },
                 config: {
                     "client_id": "lecognizer_service",
                     "mappings": {
                         "actor_id_path": "statement.actor.account.name",
-                        "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://lecognizer.com/xapi/profiles/session/1.0/verbs/logged-in": "started"
-                        },
-                        "extensions": {
-                            "session_id": "statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/session-id",
-                            "client_ip": "statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/client-ip",
-                            "user_agent": "statement.context.extensions.http://lecognizer.com/xapi/profiles/session/1.0/extensions/context/user-agent"
-                        }
+                        "actor_name_path": "statement.actor.name"
                     }
                 }
             },
-            paused_event: {
-                name: "똑똑수학 미디어 일시정지 (서의진)",
+            interacted_star: {
+                name: "[인터랙션 추천] 실학생 김윤찬",
                 raw: {
-                    "_id": "681c03d75f9d2bd429d6619f",
-                    "organisation": "똑똑수학_AI_플랫폼",
-                    "stored": "2026-05-27T10:15:00+09:00",
+                    "stored": "2026-05-28T14:00:00+09:00",
                     "statement": {
-                        "id": "7e1d645d-6d80-415f-95bb-a3b0ee995f02",
                         "actor": {
-                            "objectType": "Agent",
-                            "name": "서의진",
-                            "account": {
-                                "name": "54b5df59-a2a4-4cfd-9656-788c0356c9a3",
-                                "homePage": "http://aidtbook.kr/xapi/profiles/media"
-                            }
+                            "name": "김윤찬",
+                            "account": { "name": "fdc5dfeb-18b2-4b9f-98a3-32cb0911f139" }
                         },
-                        "verb": {
-                            "id": "http://aidtbook.kr/xapi/profiles/media/verbs/paused",
-                            "display": {
-                                "ko-KR": "일시정지함"
-                            }
-                        },
-                        "object": {
-                            "id": "http://aidtbook.kr/resources/media/grade3-math-unit2-lesson1",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://aidtbook.kr/xapi/activity-type/media",
-                                "name": {
-                                    "ko-KR": "초등 수학 3학년 2단원 - 나눗셈 미디어 영상"
-                                }
-                            }
-                        },
-                        "context": {
-                            "extensions": {
-                                "http://aidtbook.kr/xapi/profiles/media/extensions/context/play-time": 128.5
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:15:00+09:00"
+                        "verb": { "id": "http://lecognizer.com/xapi/profiles/media/1.0/verbs/interacted" },
+                        "object": { "id": "https://www.toctocmath.kr/resources/media/M5-U1-L3" }
                     }
                 },
                 config: {
                     "client_id": "aidtbook_service",
                     "mappings": {
                         "actor_id_path": "statement.actor.account.name",
-                        "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://aidtbook.kr/xapi/profiles/media/verbs/paused": "paused"
-                        },
-                        "target_id_path": "statement.object.id",
-                        "target_type_path": "statement.object.definition.type"
+                        "actor_name_path": "statement.actor.name"
                     }
                 }
             },
-            navigated_event: {
-                name: "똑똑수학 학습 화면 이동 (김지환)",
+            no_data: {
+                name: "[테스트] 데이터 없는 계정",
                 raw: {
-                    "_id": "681c03d75f9d2bd429d6619a",
-                    "organisation": "똑똑수학_AI_플랫폼",
-                    "stored": "2026-05-27T10:20:00+09:00",
                     "statement": {
-                        "id": "7e1d645d-6d80-415f-95bb-a3b0ee995f03",
                         "actor": {
-                            "objectType": "Agent",
-                            "name": "김지환",
-                            "account": {
-                                "name": "445d358b-322d-4934-8ba3-248a8d76a3cf",
-                                "homePage": "http://aidtbook.kr/xapi/profiles/navigation"
-                            }
+                            "name": "EmptyUser",
+                            "account": { "name": "user-without-any-logs-in-lrs" }
                         },
-                        "verb": {
-                            "id": "http://aidtbook.kr/xapi/profiles/navigation/verbs/navigated",
-                            "display": {
-                                "ko-KR": "이동함"
-                            }
-                        },
-                        "object": {
-                            "id": "http://aidtbook.kr/resources/page/learning-dashboard-unit2",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://aidtbook.kr/xapi/activity-type/webpage",
-                                "name": {
-                                    "ko-KR": "수학 2단원 학습 홈 대시보드"
-                                }
-                            }
-                        },
-                        "context": {
-                            "extensions": {
-                                "http://aidtbook.kr/xapi/profiles/navigation/extensions/context/target-page": "quiz-review-section",
-                                "http://aidtbook.kr/xapi/profiles/navigation/extensions/context/time-spent": 45
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:20:00+09:00"
+                        "verb": { "id": "http://example.com/verbs/nothing" },
+                        "object": { "id": "http://example.com/activities/null" }
                     }
                 },
                 config: {
-                    "client_id": "aidtbook_service",
-                    "mappings": {
-                        "actor_id_path": "statement.actor.account.name",
-                        "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://aidtbook.kr/xapi/profiles/navigation/verbs/navigated": "interacted"
-                        },
-                        "target_id_path": "statement.object.id",
-                        "target_type_path": "statement.object.definition.type"
-                    }
-                }
-            },
-            fake_test: {
-                name: "[경고] 가짜 테스트 계정 (학생001)",
-                raw: {
-                    "_id": "681c03d75f9d2bd429d66199",
-                    "organisation": "임시_테스트_계정",
-                    "stored": "2026-05-27T10:25:00+09:00",
-                    "statement": {
-                        "id": "7e1d645d-6d80-415f-95bb-a3b0ee995f09",
-                        "actor": {
-                            "objectType": "Agent",
-                            "name": "학생001",
-                            "account": {
-                                "name": "1655829b-df0f-40fe-a09f-f5d1452caf52",
-                                "homePage": "http://temporary-test.org"
-                            }
-                        },
-                        "verb": {
-                            "id": "http://temporary-test.org/xapi/verbs/play-movie",
-                            "display": {
-                                "ko-KR": "비디오재생"
-                            }
-                        },
-                        "object": {
-                            "id": "http://temporary-test.org/test-movie-1",
-                            "objectType": "Activity",
-                            "definition": {
-                                "type": "http://temporary-test.org/activity-type/dummy",
-                                "name": {
-                                    "ko-KR": "테스트용 임시 더미 비디오"
-                                }
-                            }
-                        },
-                        "timestamp": "2026-05-27T10:25:00+09:00"
-                    }
-                },
-                config: {
-                    "client_id": "dummy_test_service",
-                    "mappings": {
-                        "actor_id_path": "statement.actor.account.name",
-                        "actor_name_path": "statement.actor.name",
-                        "verb_mapping": {
-                            "http://temporary-test.org/xapi/verbs/play-movie": "played"
-                        },
-                        "target_id_path": "statement.object.id",
-                        "target_type_path": "statement.object.definition.type"
-                    }
+                    "client_id": "test_service",
+                    "mappings": { "actor_id_path": "statement.actor.account.name" }
                 }
             }
         };
@@ -2737,8 +2562,16 @@ Authorization: Bearer {{client_id}}
         // GLOBALS FOR MODAL SIMULATOR
         let currentActiveApi = '';
         const PARAMETER_VALUES = {
-            "name": ["김태윤", "서의진", "김지환"],
-            "user_id": ["11572119-e321-4bc2-b57c-4189e5f80936", "50834687-32e4-477b-bff3-da98a2b8dc1c", "445d358b-322d-4934-8ba3-248a8d76a3cf"],
+            "name": ["김태윤", "서의진", "김지환", "곽소율", "김수혜", "문주훈", "김윤찬"],
+            "user_id": [
+                "11572119-e321-4bc2-b57c-4189e5f80936", 
+                "50834687-32e4-477b-bff3-da98a2b8dc1c", 
+                "445d358b-322d-4934-8ba3-248a8d76a3cf",
+                "0e1b4e3b-3bd4-40d0-859c-317199227f1d",
+                "a0aa2d97-16e2-40af-9716-c605133447cb",
+                "4a442b04-b04c-46f9-8b6c-77fe0905babc",
+                "fdc5dfeb-18b2-4b9f-98a3-32cb0911f139"
+            ],
             "activity_id": ["https://www.toctocmath.kr/VCS-1-1", "https://www.toctocmath.kr/VCS-1-6"],
             "verb": ["played", "paused", "completed", "interacted", "initialized"],
             "grade": ["5", "6"],
@@ -2751,6 +2584,9 @@ Authorization: Bearer {{client_id}}
         };
 
         const API_PARAMS_MAP = {
+            // Common Profile
+            "active_days_count": ["user_id"],
+            "verb_distribution": ["user_id"],
             // Media Profile
             "verb_count": ["user_id", "verb"],
             "watched_media_list": ["user_id"],
@@ -2805,23 +2641,48 @@ Authorization: Bearer {{client_id}}
             document.getElementById('modal-result-code').textContent = `// 파라미터를 고르고 'API 테스트 전송' 버튼을 클릭하세요.`;
             document.getElementById('modal-result-code').style.color = '#9ca3af';
 
-            const neededParams = API_PARAMS_MAP[apiKey] || [];
-            if (neededParams.length === 0) {
-                container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">이 API는 추가 설정 입력값 없이 즉시 구동됩니다.</div>`;
-            } else {
-                neededParams.forEach(paramKey => {
+            const neededParams = API_PARAMS_MAP[apiKey] || ["user_id"];
+            
+            // Recommendation Map: Which student has the best data for which API?
+            const REC_MAP = {
+                "interacted_time_interval": "fdc5dfeb-18b2-4b9f-98a3-32cb0911f139", // 김윤찬
+                "play_pause_time_interval": "0e1b4e3b-3bd4-40d0-859c-317199227f1d", // 곽소율
+                "seeked_time_interval": "0e1b4e3b-3bd4-40d0-859c-317199227f1d",     // 곽소율
+                "wrong_answers": "a0aa2d97-16e2-40af-9716-c605133447cb",            // 김수혜
+                "wrong_answers_chapter_test": "a0aa2d97-16e2-40af-9716-c605133447cb",
+                "navigation_ratio": "4a442b04-b04c-46f9-8b6c-77fe0905babc",         // 문주훈
+                "active_days_count": "11572119-e321-4bc2-b57c-4189e5f80936"          // 김태윤
+            };
+
+            neededParams.forEach(paramKey => {
                     const values = PARAMETER_VALUES[paramKey] || [];
                     const paramGroup = document.createElement('div');
                     paramGroup.className = 'param-group';
                     
                     paramGroup.innerHTML = `
-                        <div class="param-group-title">${paramKey} (입력 변수)</div>
+                        <div class="param-group-title">${paramKey} (입력 변수) ${paramKey === 'user_id' ? '<span style="color:var(--primary-accent); font-size:0.7rem; text-transform:none;"></span>' : ''}</div>
                         <div class="checkbox-options-row">
                             ${values.map((val, idx) => {
                                 const inputId = `param-${paramKey}-${idx}`;
-                                // Let first item be checked by default for seamless initial clicks
-                                const checkedAttr = idx === 0 ? 'checked' : '';
-                                const selectedClass = idx === 0 ? 'selected' : '';
+                                
+                                // INTELLIGENT AUTO-CHECK LOGIC
+                                let isChecked = false;
+                                if (paramKey === 'user_id') {
+                                    // If we have a recommendation for this API, check only that student
+                                    const recId = REC_MAP[apiKey];
+                                    if (recId) {
+                                        isChecked = (val === recId);
+                                    } else {
+                                        // Fallback to first student
+                                        isChecked = (idx === 0);
+                                    }
+                                } else {
+                                    // Non-user params: check the first one
+                                    isChecked = (idx === 0);
+                                }
+
+                                const checkedAttr = isChecked ? 'checked' : '';
+                                const selectedClass = isChecked ? 'selected' : '';
                                 const type = paramKey === 'dataset' ? 'radio' : 'checkbox';
                                 
                                 return `
@@ -2835,7 +2696,6 @@ Authorization: Bearer {{client_id}}
                     `;
                     container.appendChild(paramGroup);
                 });
-            }
 
             document.getElementById('api-modal-overlay').classList.add('active');
         }
@@ -3016,6 +2876,7 @@ Authorization: Bearer {{client_id}}
                     'interaction', 'assessment_efficiency'
                 ];
                 const navigationApis = ['navigation_list', 'navigation_ratio'];
+                const commonApis = ['active_days_count', 'verb_distribution'];
                 
                 if (apiKey === 'verb_count') {
                     const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
@@ -3046,6 +2907,8 @@ Authorization: Bearer {{client_id}}
                         category = 'assessment';
                     } else if (navigationApis.includes(apiKey)) {
                         category = 'navigation';
+                    } else if (commonApis.includes(apiKey)) {
+                        category = 'common';
                     }
                     
                     fetchUrl = `${API_BASE}/api/v1/analytics/${category}/${endpointName}`;

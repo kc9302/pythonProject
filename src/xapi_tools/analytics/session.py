@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, Iterable
 from xapi_tools.utils.db import get_db_statements
 from xapi_tools.utils.pandas_helper import dict_to_rows, rows_to_dict
+from xapi_tools.analytics.utils import ensure_data
 
 # ==============================================================================
 # ORIGINAL BACKWARD COMPATIBLE FUNCTIONS (Zero Regressions)
@@ -11,7 +12,8 @@ SESSION_ID_IRI = "http://lecognizer.com/xapi/profiles/session/1.0/extensions/con
 VERB_INITIALIZED = "http://lecognizer.com/xapi/profiles/session/1.0/verbs/initialized"
 VERB_TERMINATED = "http://lecognizer.com/xapi/profiles/session/1.0/verbs/terminated"
 
-def count_total_sessions(statements: Iterable[Dict[str, Any]]) -> int:
+@ensure_data
+def count_total_sessions(statements: Iterable[Dict[str, Any]]) -> Any:
     session_ids = set()
     for stmt in statements:
         context = stmt.get("context", {})
@@ -21,7 +23,8 @@ def count_total_sessions(statements: Iterable[Dict[str, Any]]) -> int:
             session_ids.add(sid)
     return len(session_ids)
 
-def calc_avg_session_duration(statements: Iterable[Dict[str, Any]]) -> float:
+@ensure_data
+def calc_avg_session_duration(statements: Iterable[Dict[str, Any]]) -> Any:
     sessions = {}
     for stmt in statements:
         context = stmt.get("context", {})
@@ -64,7 +67,8 @@ def calc_avg_session_duration(statements: Iterable[Dict[str, Any]]) -> float:
         return 0.0
     return sum(durations) / len(durations)
 
-def count_active_days(statements: Iterable[Dict[str, Any]]) -> int:
+@ensure_data
+def count_active_days(statements: Iterable[Dict[str, Any]]) -> Any:
     active_days = set()
     for stmt in statements:
         context = stmt.get("context", {})
@@ -84,7 +88,8 @@ def count_active_days(statements: Iterable[Dict[str, Any]]) -> int:
             continue
     return len(active_days)
 
-def analyze_login_times(statements: Iterable[Dict[str, Any]]) -> Dict[int, int]:
+@ensure_data
+def analyze_login_times(statements: Iterable[Dict[str, Any]]) -> Any:
     hours = {}
     for stmt in statements:
         verb_id = stmt.get("verb", {}).get("id")
@@ -102,7 +107,8 @@ def analyze_login_times(statements: Iterable[Dict[str, Any]]) -> Dict[int, int]:
             continue
     return hours
 
-def get_platform_usage(statements: Iterable[Dict[str, Any]]) -> Dict[str, int]:
+@ensure_data
+def get_platform_usage(statements: Iterable[Dict[str, Any]]) -> Any:
     session_platforms = {}
     for stmt in statements:
         context = stmt.get("context", {})
@@ -129,7 +135,11 @@ def verb_count(name: str, verb: str) -> int:
     statements = get_db_statements(name, verb, db_name="lrs")
     return len(statements)
 
-def time_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
+@ensure_data
+def time_list(dataset: Dict[str, Dict[int, Any]]) -> Any:
+    """
+    유저의 세션 접속 시간을 목록 형태로 반환합니다.
+    """
     rows = dict_to_rows(dataset)
     results = []
     

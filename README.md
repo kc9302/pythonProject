@@ -24,6 +24,29 @@
 3. **Core Layer**: 표준화된 데이터를 기반으로 공통 분석 로직 수행.
 4. **API Layer**: 분석 결과를 RESTful JSON으로 서빙.
 
+## 🚀 API Development SOP (표준 운영 절차)
+
+새로운 분석 기능을 추가할 때 아래 5대 규칙을 반드시 준수합니다.
+
+### 1. 백엔드 로직 (`src/xapi_tools/analytics/`)
+- 목적에 맞는 파일(media, assessment, common 등)에 함수 구현.
+- **데이터 부재 처리**: 결과가 없을 경우 반드시 `"저장소에 데이터가 없습니다"` 문자열 반환.
+
+### 2. API 엔드포인트 (`src/xapi_tools/web_app.py`)
+- `/api/v1/analytics/{profile}/{kebab-case}` 경로 준수.
+- 다중 유저 지원을 위해 `user_id: List[str] = Query(...)` 필수 사용.
+
+### 3. UI 카드 및 파라미터 (`sandbox/live_sandbox.html`)
+- `API_PARAMS_MAP`에 반드시 파라미터 명시 (최소 `["user_id"]`).
+- **명시성 원칙**: "추가 설정 없이 즉시 구동"과 같은 모호한 문구 사용 금지.
+
+### 4. UI 코드 무결성 (Critical)
+- HTML 내 JS 수정 시 중괄호(`{}`) 밸런스 및 구문 오류 정밀 검토.
+- 리팩토링(if-else 제거 등) 시 잔여 브레이스 제거 확인 필수.
+
+### 5. 명세서 동기화 (`API_SPEC.md`)
+- 신규 엔드포인트 추가 시 즉시 문서 업데이트.
+
 ## 📁 프로젝트 구조
 
 ```text

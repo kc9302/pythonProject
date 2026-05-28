@@ -1068,22 +1068,19 @@
                             <label>테스트 데이터 프리셋 선택 (실제 DB 추출 샘플)</label>
                             <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; width: 100%;">
                                 <button class="preset-btn active" onclick="loadPreset('aidtbook')">
-                                    <span class="material-symbols-rounded">play_circle</span> 똑똑수학 미디어 재생 (김태윤)
+                                    <span class="material-symbols-rounded">play_circle</span> [미디어 추천] 실학생 곽소율
                                 </button>
                                 <button class="preset-btn" onclick="loadPreset('hy')">
-                                    <span class="material-symbols-rounded">assignment_turned_in</span> 똑똑수학 형성평가 제출 (서의진)
-                                </button>
-                                <button class="preset-btn" onclick="loadPreset('lecognizer')">
-                                    <span class="material-symbols-rounded">login</span> 똑똑수학 시스템 로그인 (김지환)
-                                </button>
-                                <button class="preset-btn" onclick="loadPreset('paused_event')">
-                                    <span class="material-symbols-rounded">pause_circle</span> 똑똑수학 미디어 일시정지 (서의진)
+                                    <span class="material-symbols-rounded">assignment_turned_in</span> [평가 추천] 실학생 김수혜
                                 </button>
                                 <button class="preset-btn" onclick="loadPreset('navigated_event')">
-                                    <span class="material-symbols-rounded">explore</span> 똑똑수학 학습 화면 이동 (김지환)
+                                    <span class="material-symbols-rounded">explore</span> [이동 추천] 실학생 문주훈
                                 </button>
-                                <button class="preset-btn" onclick="loadPreset('fake_test')">
-                                    <span class="material-symbols-rounded">report</span> [경고] 가짜 테스트 계정 (학생001)
+                                <button class="preset-btn" onclick="loadPreset('lecognizer')">
+                                    <span class="material-symbols-rounded">person</span> [표준] 실학생 김태윤
+                                </button>
+                                <button class="preset-btn" onclick="loadPreset('no_data')">
+                                    <span class="material-symbols-rounded">database_off</span> [테스트] 데이터 없는 계정
                                 </button>
                             </div>
                         </div>
@@ -1276,7 +1273,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저의 미디어 특정 verb(played, paused 등)의 발생 빈도수를 구합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: int</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">watched_media_list <span class="mini-badge mini-badge-primary">Basic</span></div>
@@ -1326,7 +1323,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">media_heatmap <span class="mini-badge mini-badge-success">Applied</span></div>
                             <div class="spec-card-desc">특정 미디어 콘텐츠(activity_id) 구간별 pause 및 seek 발생 빈도를 5초 간격으로 분석하여 인지 병목 구간을 진단합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: list</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">detect_frustration <span class="mini-badge mini-badge-success">Applied</span></div>
@@ -1342,7 +1339,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저의 세션 특정 verb(logged-in, logged-out 등) 발생 빈도수를 구합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: int</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">time_list <span class="mini-badge mini-badge-primary">Basic</span></div>
@@ -1358,7 +1355,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저의 평가 특정 verb(started, submitted 등) 발생 빈도수를 구합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: int</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name, verb</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">solved_question_count <span class="mini-badge mini-badge-primary">Basic</span></div>
@@ -1383,7 +1380,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">assessment_efficiency <span class="mini-badge mini-badge-success">Applied</span></div>
                             <div class="spec-card-desc">문항별 획득 점수와 소요 시간을 초 단위로 계산하여 효율 지수를 도출하고 행동 패턴(찍기 의심 등)을 진단합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: list</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                     </div>
 
@@ -1394,7 +1391,7 @@
                         <div class="spec-card">
                             <div class="spec-card-title">verb_count <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저의 메뉴 이동(Navigated) 이벤트 발생 빈도 총 횟수를 구합니다.</div>
-                            <div class="spec-card-meta"><span class="mini-badge">Input: name</span><span class="mini-badge">Return: int</span></div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: name</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                         <div class="spec-card">
                             <div class="spec-card-title">navigation_list <span class="mini-badge mini-badge-primary">Basic</span></div>
@@ -2588,6 +2585,9 @@ Authorization: Bearer {{client_id}}
         };
 
         const API_PARAMS_MAP = {
+            // Common Profile
+            "active_days_count": ["user_id"],
+            "verb_distribution": ["user_id"],
             // Media Profile
             "verb_count": ["user_id", "verb"],
             "watched_media_list": ["user_id"],
@@ -2642,11 +2642,8 @@ Authorization: Bearer {{client_id}}
             document.getElementById('modal-result-code').textContent = `// 파라미터를 고르고 'API 테스트 전송' 버튼을 클릭하세요.`;
             document.getElementById('modal-result-code').style.color = '#9ca3af';
 
-            const neededParams = API_PARAMS_MAP[apiKey] || [];
-            if (neededParams.length === 0) {
-                container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.85rem; text-align: center;">이 API는 추가 설정 입력값 없이 즉시 구동됩니다.</div>`;
-            } else {
-                neededParams.forEach(paramKey => {
+            const neededParams = API_PARAMS_MAP[apiKey] || ["user_id"];
+            neededParams.forEach(paramKey => {
                     const values = PARAMETER_VALUES[paramKey] || [];
                     const paramGroup = document.createElement('div');
                     paramGroup.className = 'param-group';
@@ -2672,7 +2669,6 @@ Authorization: Bearer {{client_id}}
                     `;
                     container.appendChild(paramGroup);
                 });
-            }
 
             document.getElementById('api-modal-overlay').classList.add('active');
         }

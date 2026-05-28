@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from xapi_tools.adapter.mapping_engine import MappingEngine
-from xapi_tools.analytics import media, session, assessment, navigation, applied
+from xapi_tools.analytics import media, session, assessment, navigation, applied, common
 from xapi_tools.utils.db import get_mongo_client, get_db_statements
 from xapi_tools.utils.pandas_helper import rows_to_dict, dict_to_rows
 
@@ -55,6 +55,30 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# New Common Analytics Endpoints
+@app.get("/api/v1/analytics/common/active-days-count")
+def get_active_days_count_api(user_id: List[str] = Query(...)):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = common.active_days_count(dataset)
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/analytics/common/verb-distribution")
+def get_verb_distribution_api(user_id: List[str] = Query(...)):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = common.verb_distribution(dataset)
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Default configurations mapping
 DEFAULT_CONFIGS = {

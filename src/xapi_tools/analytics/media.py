@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, Iterable
 from xapi_tools.utils.db import get_db_statements, get_mongo_client
 from xapi_tools.utils.pandas_helper import dict_to_rows, rows_to_dict
+from xapi_tools.analytics.utils import ensure_data
 
 logger = logging.getLogger("xapi_tools.analytics.media")
 
@@ -30,9 +31,9 @@ def verb_count(name: str, verb: str = "played") -> int:
     statements = get_db_statements(name, verb, db_name="lrs")
     return len(statements)
 
+@ensure_data
 def watched_media_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
     rows = dict_to_rows(dataset)
-    if not rows: return {}
     media_content = {}
     media_type = {}
     for idx, row in enumerate(rows):
@@ -61,9 +62,9 @@ def watched_media_count(name: str, verb: str = "played") -> Dict[str, int]:
         else: video_count += 1
     return {"영상": video_count, "오디오": audio_count}
 
-def initialized_info(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
+@ensure_data
+def initialized_info(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
-    if not rows: return {}
     results = []
     for row in rows:
         stmt = row.get("statement", row)
@@ -74,11 +75,15 @@ def initialized_info(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, 
             for k, v in extensions.items():
                 clean_ext[k.split('/')[-1]] = v
             results.append(clean_ext)
+            
+    if not results:
+        return {"result": "데이터 없음"}
+        
     return rows_to_dict(results)
 
-def now_play_time(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, str]:
+@ensure_data
+def now_play_time(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
-    if not rows: return {}
     play_times = {}
     for row in rows:
         stmt = row.get("statement", row)
@@ -86,11 +91,14 @@ def now_play_time(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, str]:
             obj_id = stmt.get("object", {}).get("id", "unknown")
             time_val = stmt.get("context", {}).get("extensions", {}).get("https://w3id.org/xapi/video/extensions/time")
             if time_val is not None: play_times[obj_id] = str(time_val)
+            
+    if not play_times:
+        return {"result": "데이터 없음"}
     return play_times
 
-def play_pause_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Any]:
+@ensure_data
+def play_pause_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
-    if not rows: return {}
     segments = []
     total_played = 0
     for row in rows:
@@ -100,6 +108,10 @@ def play_pause_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, An
             time_val = resolve_video_time(stmt)
             segments.append({"action": "played" if "played" in verb else "paused", "time": time_val})
             if "played" in verb: total_played += 1
+            
+    if not segments:
+        return {"result": "데이터 없음"}
+            
     return {"segments": segments, "total_played_count": total_played}
 
 def resolve_video_time(stmt):
@@ -108,7 +120,8 @@ def resolve_video_time(stmt):
         if "time" in k.lower(): return v
     return 0
 
-def seeked_time_interval(dataset: Dict[str, Dict[int, Any]]) -> List[Dict[str, Any]]:
+@ensure_data
+def seeked_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
     results = []
     for row in rows:
@@ -120,31 +133,42 @@ def seeked_time_interval(dataset: Dict[str, Dict[int, Any]]) -> List[Dict[str, A
                 "to": ext.get("https://w3id.org/xapi/video/extensions/time-to"),
                 "timestamp": stmt.get("timestamp")
             })
+            
+    if not results:
+        return {"result": "데이터 없음"}
     return results
 
-def completed_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Any]:
+@ensure_data
+def completed_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
     for row in rows:
         stmt = row.get("statement", row)
         if "completed" in stmt.get("verb", {}).get("id", "").lower():
             return {"completed": True, "timestamp": stmt.get("timestamp")}
-    return {"completed": False}
+            
+    return {"result": "데이터 없음"}
 
-def terminated_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Any]:
+@ensure_data
+def terminated_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
     for row in rows:
         stmt = row.get("statement", row)
         if "terminated" in stmt.get("verb", {}).get("id", "").lower():
             return {"terminated": True, "timestamp": stmt.get("timestamp")}
-    return {"terminated": False}
+            
+    return {"result": "데이터 없음"}
 
-def interacted_time_interval(dataset: Dict[str, Dict[int, Any]]) -> List[Dict[str, Any]]:
+@ensure_data
+def interacted_time_interval(dataset: Dict[str, Dict[int, Any]]) -> Any:
     rows = dict_to_rows(dataset)
     results = []
     for row in rows:
         stmt = row.get("statement", row)
         if "interacted" in stmt.get("verb", {}).get("id", "").lower():
             results.append({"type": "interacted", "timestamp": stmt.get("timestamp")})
+            
+    if not results:
+        return {"result": "데이터 없음"}
     return results
 
 def media_heatmap(activity_id: str) -> List[Dict[str, Any]]:
@@ -193,13 +217,17 @@ def media_heatmap(activity_id: str) -> List[Dict[str, Any]]:
             "bucket_start": b_start, "bucket_end": b_start + 5,
             "pause_count": buckets[b_start]["paused_count"], "seek_count": buckets[b_start]["seeked_count"]
         })
+    
+    if not sorted_buckets:
+        return {"result": "데이터 없음"}
+        
     return sorted_buckets
 
 # ==============================================================================
 # ADVANCED ANALYTICS (Relaxed for Real-world Production Data)
 # ==============================================================================
 
-def detect_frustration(statements: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+def detect_frustration(statements: Iterable[Dict[str, Any]]) -> Any:
     """
     미디어 재생 중 사용자 좌절(Frustration) 패턴을 탐지합니다.
     [기준 완화]
@@ -207,7 +235,8 @@ def detect_frustration(statements: Iterable[Dict[str, Any]]) -> Dict[str, Dict[s
     - 미세 배속 변경: 1.2배속 이상 감지 시 기록
     """
     stmts_list = list(statements)
-    if not stmts_list: return {}
+    if not stmts_list: 
+        return {"result": "데이터 없음"}
     
     stmts_list.sort(key=_get_ts)
     frustration_results = {} 

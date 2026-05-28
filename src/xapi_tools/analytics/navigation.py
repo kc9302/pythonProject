@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional, Iterable
 from xapi_tools.utils.db import get_db_statements
 from xapi_tools.utils.pandas_helper import dict_to_rows, rows_to_dict
+from xapi_tools.analytics.utils import ensure_data
 
 # ==============================================================================
 # NAVIGATION PROFILE BASIC APIS
@@ -16,14 +17,13 @@ def verb_count(name: str) -> int:
     statements = get_db_statements(name, "navigated", db_name="lrs")
     return len(statements)
 
-def navigation_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
+@ensure_data
+def navigation_list(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     전체기간에서 유저의 navigation 목록을 시간순으로 일자별로 구합니다. (시간차 포함)
     """
     rows = dict_to_rows(dataset)
-    if not rows:
-        return {}
-        
+    
     # 파싱 및 정렬 준비
     parsed = []
     for row in rows:
@@ -76,13 +76,14 @@ def navigation_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, A
         
     return rows_to_dict(results)
 
-def navigation_ratio(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
+@ensure_data
+def navigation_ratio(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     유저의 navigation마다 머무른 총 시간을 구합니다.
     """
     rows = dict_to_rows(dataset)
     if not rows:
-        return {}
+        return "저장소에 데이터가 없습니다"
         
     # 파싱 및 정렬
     parsed = []
@@ -135,6 +136,9 @@ def navigation_ratio(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, 
             "time": time_str
         })
         
+    if not results:
+        return "저장소에 데이터가 없습니다"
+
     return rows_to_dict(results)
 
 
@@ -163,7 +167,8 @@ def _parse_timestamp(stmt: Dict[str, Any]) -> Optional[datetime]:
     except Exception:
         return None
 
-def count_page_views(statements: List[Dict[str, Any]]) -> int:
+@ensure_data
+def count_page_views(statements: List[Dict[str, Any]]) -> Any:
     """
     Count navigated verb statements.
     """
@@ -175,7 +180,8 @@ def count_page_views(statements: List[Dict[str, Any]]) -> int:
             count += 1
     return count
 
-def find_popular_paths(statements: List[Dict[str, Any]]) -> Dict[str, int]:
+@ensure_data
+def find_popular_paths(statements: List[Dict[str, Any]]) -> Any:
     """
     Find and count navigation transitions (A -> B) grouped by session.
     """
@@ -209,7 +215,8 @@ def find_popular_paths(statements: List[Dict[str, Any]]) -> Dict[str, int]:
             
     return paths
 
-def calc_avg_time_on_page(statements: List[Dict[str, Any]]) -> Dict[str, float]:
+@ensure_data
+def calc_avg_time_on_page(statements: List[Dict[str, Any]]) -> Any:
     """
     Calculate average time spent on each navigated page.
     """
@@ -255,7 +262,8 @@ def calc_avg_time_on_page(statements: List[Dict[str, Any]]) -> Dict[str, float]:
             
     return results
 
-def identify_exit_pages(statements: List[Dict[str, Any]]) -> Dict[str, int]:
+@ensure_data
+def identify_exit_pages(statements: List[Dict[str, Any]]) -> Any:
     """
     Identify and count exit page occurrences (last navigated page per session).
     """
@@ -286,13 +294,15 @@ def identify_exit_pages(statements: List[Dict[str, Any]]) -> Dict[str, int]:
         
     return exits
 
-def predict_churn(statements: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+def predict_churn(statements: Iterable[Dict[str, Any]]) -> Any:
     """
     세션 이탈 징후(Churn Probability)를 분석합니다.
     - Idle 상태 감지: navigated 후 30초 이상 액션 부재
     - 무의미한 탐색: 10초 이내 3회 이상의 navigated 발생
     """
     stmts_list = list(statements)
+    if not stmts_list:
+        return "저장소에 데이터가 없습니다"
     
     def get_ts(s):
         # Support both 'timestamp' (string/datetime) and nested raw structure
@@ -354,5 +364,7 @@ def predict_churn(statements: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, A
     for sess in churn_results:
         churn_results[sess]["churn_probability"] = min(churn_results[sess]["churn_probability"], 0.95)
         
-    return churn_results
+    if not churn_results:
+        return {"result": "데이터 없음"}
 
+    return churn_results

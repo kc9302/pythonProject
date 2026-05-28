@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Dict, Any, List, Optional
 from xapi_tools.utils.db import get_db_statements, get_mongo_client
 from xapi_tools.utils.pandas_helper import dict_to_rows, rows_to_dict
+from xapi_tools.analytics.utils import ensure_data
 
 # ==============================================================================
 # ASSESSMENT PROFILE BASIC APIS
@@ -15,7 +16,8 @@ def verb_count(name: str, verb: str) -> int:
     statements = get_db_statements(name, verb, db_name="lrs")
     return len(statements)
 
-def solved_question_count(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, int]:
+@ensure_data
+def solved_question_count(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     유저가 풀이한 평가 문항 목록과 풀이 횟수를 구합니다.
     """
@@ -38,14 +40,16 @@ def solved_question_count(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, int]:
         
     return counts
 
-def attempt_question_count(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, int]:
+@ensure_data
+def attempt_question_count(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     유저가 풀이한 평가 문항 목록과 시도 횟수를 구합니다.
     """
     # solved_question_count와 동일하게 빈도 계산
     return solved_question_count(dataset)
 
-def extensions(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[str, Any]]:
+@ensure_data
+def extensions(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     유저가 풀이한 평가 문항의 context extension을 구합니다.
     """
@@ -86,7 +90,8 @@ def extensions(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[str, Any]]:
             
     return results
 
-def interaction(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, str]:
+@ensure_data
+def interaction(dataset: Dict[str, Dict[int, Any]]) -> Any:
     """
     유저가 풀이한 평가 문항의 상호작용 유형(Interaction Type)을 구합니다.
     """
@@ -123,7 +128,8 @@ def interaction(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, str]:
 # ORIGINAL ASSESSMENT FUNCTIONS FOR BACKWARD COMPATIBILITY
 # ==============================================================================
 
-def count_attempts(statements: List[Dict[str, Any]]) -> int:
+@ensure_data
+def count_attempts(statements: List[Dict[str, Any]]) -> Any:
     """
     Test counting valid assessment attempts ('started' verbs).
     """
@@ -135,7 +141,8 @@ def count_attempts(statements: List[Dict[str, Any]]) -> int:
             count += 1
     return count
 
-def calc_completion_rate(statements: List[Dict[str, Any]]) -> float:
+@ensure_data
+def calc_completion_rate(statements: List[Dict[str, Any]]) -> Any:
     """
     Calculate the ratio of completed assessments to started assessments.
     """
@@ -153,7 +160,8 @@ def calc_completion_rate(statements: List[Dict[str, Any]]) -> float:
         return 0.0
     return completed / started
 
-def calc_avg_score(statements: List[Dict[str, Any]]) -> float:
+@ensure_data
+def calc_avg_score(statements: List[Dict[str, Any]]) -> Any:
     """
     Calculate average scaled score across completed assessments.
     """
@@ -171,7 +179,8 @@ def calc_avg_score(statements: List[Dict[str, Any]]) -> float:
         return 0.0
     return sum(scores) / len(scores)
 
-def calc_pass_rate(statements: List[Dict[str, Any]]) -> float:
+@ensure_data
+def calc_pass_rate(statements: List[Dict[str, Any]]) -> Any:
     """
     Calculate ratio of passed assessments to started assessments.
     """
@@ -194,7 +203,8 @@ def calc_pass_rate(statements: List[Dict[str, Any]]) -> float:
         return 0.0
     return passed / started
 
-def analyze_item_responses(statements: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+@ensure_data
+def analyze_item_responses(statements: List[Dict[str, Any]]) -> Any:
     """
     Analyze item-level responses for completed assessment statements.
     """
@@ -224,7 +234,7 @@ def analyze_item_responses(statements: List[Dict[str, Any]]) -> Dict[str, Dict[s
             
     return analysis
 
-def assessment_efficiency(user_id: str) -> List[Dict[str, Any]]:
+def assessment_efficiency(user_id: str) -> Any:
     """
     사용자(user_id)가 푼 문항별 점수와 소요 시간을 기반으로 풀이 효율성을 진단합니다.
     efficiency = score / duration_seconds
@@ -305,8 +315,8 @@ def assessment_efficiency(user_id: str) -> List[Dict[str, Any]]:
             "timestamp": stmt.get("timestamp")
         })
         
-    # client.close() removed for connection pooling
-    
+    if not results:
+        return {"result": "데이터 없음"}
+        
     results.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
     return results
-

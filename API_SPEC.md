@@ -11,7 +11,13 @@
 | :--- | :--- | :--- | :--- |
 | `/api/v1/analytics/activities` | `GET` | `user_id` (List), `verb_category` (List) | 특정 유저의 활동 내역을 표준 모델로 정규화하여 일괄 반환합니다. |
 
-### 2. 미디어 분석 프로파일 (Media)
+### 2. 공통 기초 통계 (Common)
+| Endpoint | Method | 파라미터 | 설명 |
+| :--- | :--- | :--- | :--- |
+| `/api/v1/analytics/common/active-days-count` | `GET` | `user_id` (List) | 유저가 실제로 학습 활동을 수행한 총 날짜 수(출석일) 반환. |
+| `/api/v1/analytics/common/verb-distribution` | `GET` | `user_id` (List) | 유저가 발생시킨 전체 행동(Verbs)의 종류별 횟수와 비중 추출. |
+
+### 3. 미디어 분석 프로파일 (Media)
 | Endpoint | Method | 파라미터 | 설명 |
 | :--- | :--- | :--- | :--- |
 | `/api/v1/analytics/media/watched-list` | `GET` | `user_id` | 유저가 시청한 미디어 명칭 및 유형 목록. |
