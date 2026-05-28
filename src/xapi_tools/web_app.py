@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+import time
 from datetime import datetime
 from typing import Dict, Any, Optional, List
 from fastapi import FastAPI, HTTPException, Query, Response
@@ -10,8 +12,41 @@ from pydantic import BaseModel
 from xapi_tools.adapter.mapping_engine import MappingEngine
 from xapi_tools.analytics import media, session, assessment, navigation, applied
 from xapi_tools.utils.db import get_mongo_client, get_db_statements
+from xapi_tools.utils.pandas_helper import rows_to_dict, dict_to_rows
+
+# Configure logging with immediate flush (StreamHandler defaults to stderr/stdout)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+    force=True # Ensure our config overrides any library defaults
+)
+logger = logging.getLogger("xapi_tools")
+logger.setLevel(logging.INFO)
 
 app = FastAPI(title="xAPI Adapter Live Sandbox & Unified API")
+
+# Request/Response detailed logging middleware
+@app.middleware("http")
+async def log_requests(request, call_next):
+    start_time = time.time()
+    path = request.url.path
+    query_params = dict(request.query_params)
+    method = request.method
+    
+    is_api = path.startswith("/api")
+    if is_api:
+        logger.info(f"➡️ [API REQUEST] {method} {path} | Params: {query_params}")
+        
+    try:
+        response = await call_next(request)
+        process_time = (time.time() - start_time) * 1000
+        if is_api:
+            logger.info(f"⬅️ [API RESPONSE] {method} {path} | Status: {response.status_code} | Time: {process_time:.2f}ms")
+        return response
+    except Exception as e:
+        process_time = (time.time() - start_time) * 1000
+        logger.error(f"❌ [API ERROR] {method} {path} | Error: {str(e)} | Time: {process_time:.2f}ms", exc_info=True)
+        raise
 
 # CORS 미들웨어: 브라우저의 Preflight(OPTIONS) 요청을 허용합니다.
 app.add_middleware(
@@ -87,16 +122,15 @@ class ValidateSessionReq(BaseModel):
 # INTERNAL HELPERS
 # ==============================================================================
 
-def _get_user_dataset_dict(user_id: str, limit: int = 1000) -> Dict[str, Dict[int, Any]]:
+def _get_user_dataset_dict(user_id: str, limit: int = 300) -> Dict[str, Dict[int, Any]]:
     """
     Fetch statements for a user from the production lrs database and construct a Pandas-like col-oriented dictionary.
     Capped at `limit` documents (default 1000) to keep API response times practical.
     Supports user_id redirection for high-fidelity data.
     """
-    # Use centralized smarter fetching
+    # Use centralized smarter fetching from high-fidelity lrs database
     rows_clean = get_db_statements(user_id, "", db_name="lrs", limit=limit)
 
-    from xapi_tools.utils.pandas_helper import rows_to_dict
     return rows_to_dict(rows_clean)
 
 # ==============================================================================
@@ -123,7 +157,7 @@ def get_system_metrics():
         canonical_count = 0  # Production lrs database uses on-the-fly normalization
         configs_count = db["configs"].estimated_document_count()
         
-        client.close()
+        # client.close() removed for connection pooling
         return {
             "status": "healthy",
             "metrics": {
@@ -241,7 +275,7 @@ def get_database_diagnostics():
                 "verbs_count": len(verbs)
             }
             
-        client.close()
+        # client.close() removed for connection pooling
         
         return {
             "status": "success",
@@ -277,7 +311,7 @@ def register_mapping_config(req: RegisterConfigReq):
             {"$set": {"client_id": req.client_id, "mappings": req.mappings}},
             upsert=True
         )
-        client.close()
+        # client.close() removed for connection pooling
         return {"status": "success", "client_id": req.client_id}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -290,7 +324,7 @@ def get_mapping_config(client_id: str):
         coll = db["configs"]
         
         doc = coll.find_one({"client_id": client_id})
-        client.close()
+        # client.close() removed for connection pooling
         
         if not doc:
             if client_id in DEFAULT_CONFIGS:
@@ -330,7 +364,7 @@ def ingest_statement(raw_stmt: Dict[str, Any], client_id: str = "aidtbook_servic
         normalized_dict = normalized.model_dump()
         db["canonical_statements"].insert_one({**normalized_dict, "stored": datetime.utcnow().isoformat()})
         
-        client.close()
+        # client.close() removed for connection pooling
         return {
             "status": "success",
             "message": "Statement ingested and normalized successfully.",
@@ -357,43 +391,39 @@ def get_normalized_activities(
 ):
     try:
         all_results = []
+        engine = MappingEngine(DEFAULT_CONFIGS.get("aidtbook_service", {"client_id": "aidtbook_service", "mappings": {}}))
+        
+        # Default verbs if none selected (to prevent empty results)
+        target_verbs = verb_category if verb_category else ["played", "paused", "navigated", "completed"]
+        
         for uid in user_id:
-            # Use centralized smarter fetching with high-fidelity student redirection
-            rows = get_db_statements(uid, "", db_name="lrs", limit=300)
+            # Fetch ALL statements for user (we filter in memory for accurate breakdown)
+            rows = get_db_statements(uid, "", db_name="lrs", limit=1000)
             
-            # Determine actual user_id from rows if redirection happened
             actual_user_id = uid
             if rows:
-                first_stmt = rows[0].get("statement", {})
-                actual_user_id = first_stmt.get("actor", {}).get("account", {}).get("name", uid)
-                
-            config = DEFAULT_CONFIGS.get("aidtbook_service", {"client_id": "aidtbook_service", "mappings": {}})
-            engine = MappingEngine(config)
+                actual_user_id = rows[0].get("statement", {}).get("actor", {}).get("account", {}).get("name", uid)
             
-            user_activities = []
+            # Aggregate counts
+            verb_counts = {}
             for doc in rows:
-                raw_stmt = doc.get("statement", doc)
                 try:
-                    # Normalize on the fly
-                    normalized = engine.normalize(raw_stmt)
-                    norm_dict = normalized.model_dump()
-                    
-                    # Apply filters
-                    if verb_category and norm_dict.get("verb_category") not in verb_category:
-                        continue
-                    if start_date and norm_dict.get("timestamp") < start_date:
-                        continue
-                    if end_date and norm_dict.get("timestamp") > end_date:
-                        continue
-                        
-                    user_activities.append(norm_dict)
-                except Exception:
-                    continue
+                    norm = engine.normalize(doc.get("statement", doc))
+                    v = norm.verb_category
+                    verb_counts[v] = verb_counts.get(v, 0) + 1
+                except: continue
+            
+            # Format breakdown: ONLY requested verbs
+            breakdown = []
+            for v_name in target_verbs:
+                breakdown.append({
+                    "verb": v_name,
+                    "count": verb_counts.get(v_name, 0)
+                })
             
             all_results.append({
                 "user_id": actual_user_id,
-                "count": len(user_activities),
-                "activities": user_activities[:50] # Capped per user for summary
+                "verb_breakdown": breakdown
             })
                 
         return {
@@ -401,6 +431,7 @@ def get_normalized_activities(
             "results": all_results if len(user_id) > 1 else all_results[0]
         }
     except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/v1/validator/validate-session")
@@ -425,7 +456,7 @@ def validate_session_api(req: ValidateSessionReq):
             stmt.pop("_id", None)
             statements.append(stmt)
             
-        client.close()
+        # client.close() removed for connection pooling
         
         actual_count = len(statements)
         is_valid = actual_count > 0
@@ -445,50 +476,126 @@ def validate_session_api(req: ValidateSessionReq):
 # ==============================================================================
 
 @app.get("/api/v1/analytics/applied/wrong-answers")
-def get_wrong_answers_api(user_id: str):
+def get_wrong_answers_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.wrong_answers(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.wrong_answers(dataset)
+            if res:
+                all_results[uid] = res
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/applied/assessment-history")
-def get_assessment_history_api(user_id: str):
+def get_assessment_history_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.assessment_history(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.assessment_history(dataset)
+            if res:
+                all_results[uid] = res
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/analytics/applied/assessment-tag-correct-rate")
+def get_assessment_tag_correct_rate_api(
+    user_id: List[str] = Query(...),
+    grade: str = "5",
+    subject: str = "수학",
+    tag: List[str] = Query(["통분"])
+):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.assessment_tag_correct_rate(dataset, grade, subject, tag)
+            if res:
+                all_results[uid] = res
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/applied/wrong-answers-test")
-def get_wrong_answers_test_api(user_id: str, subject: str):
+def get_wrong_answers_test_api(user_id: List[str] = Query(...), subject: List[str] = Query(["수학"])):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.wrong_answers_test(dataset, subject)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.wrong_answers_test(dataset, subject)
+            if res:
+                all_results[uid] = res
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/applied/wrong-answers-chapter-test")
-def get_wrong_answers_chapter_test_api(user_id: str, subject: str, grade: str, semester: str, chapter: str):
+def get_wrong_answers_chapter_test_api(
+    user_id: List[str] = Query(...),
+    subject: List[str] = Query(["수학"]),
+    grade: List[str] = Query(["5"]),
+    semester: List[str] = Query(["1학기"]),
+    chapter: List[str] = Query(["분수의 곱셈"])
+):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.wrong_answers_chapter_test(dataset, subject, grade, semester, chapter)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.wrong_answers_chapter_test(dataset, subject, grade, semester, chapter)
+            if res:
+                all_results[uid] = res
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/analytics/applied/wrong-answers-tag")
+def get_wrong_answers_tag_api(user_id: List[str] = Query(...), tag: List[str] = Query(["통분"])):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.wrong_answers_tag(dataset, tag)
+            if res:
+                all_results[uid] = res
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/analytics/applied/wrong-answers-assessment-type")
+def get_wrong_answers_assessment_type_api(user_id: List[str] = Query(...), assessment_type: List[str] = Query(["차시평가"])):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            res = applied.wrong_answers_assessment_type(dataset, assessment_type)
+            if res:
+                all_results[uid] = res
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/watched-list")
-def get_media_watched_list_api(user_id: str):
+def get_media_watched_list_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.watched_media_list(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.watched_media_list(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/navigation/list")
-def get_navigation_list_api(user_id: str):
+def get_navigation_list_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return navigation.navigation_list(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = navigation.navigation_list(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -498,90 +605,113 @@ def get_navigation_list_api(user_id: str):
 
 @app.get("/api/v1/analytics/media/watched-count")
 def get_media_watched_count_api(
-    user_id: str, 
+    user_id: List[str] = Query(...),
     verb: List[str] = Query(["played"], description="List of xAPI verbs to count (played, paused, etc.)")
 ):
     """
-    [PHASE 2] Multi-verb batch processing.
+    [PHASE 3] Multi-user and Multi-verb batch processing.
     """
     try:
-        results = {}
-        grand_total = 0
-        
-        # Iterate and count for each verb
-        for v in verb:
-            count_data = media.watched_media_count(user_id, v)
-            # count_data is {"영상": int, "오디오": int}
-            v_total = sum(count_data.values())
-            results[v] = {
-                "breakdown": count_data,
-                "sub_total": v_total
+        all_user_results = {}
+        for uid in user_id:
+            user_results = {}
+            grand_total = 0
+            for v in verb:
+                count_data = media.watched_media_count(uid, v)
+                v_total = sum(count_data.values())
+                user_results[v] = {
+                    "breakdown": count_data,
+                    "sub_total": v_total
+                }
+                grand_total += v_total
+
+            all_user_results[uid] = {
+                "results": user_results,
+                "user_grand_total": grand_total
             }
-            grand_total += v_total
-            
+
         return {
-            "user_id": user_id,
+            "batch_mode": True,
             "selected_verbs": verb,
-            "results": results,
-            "grand_total": grand_total,
+            "user_data": all_user_results,
             "status": "success"
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
 @app.get("/api/v1/analytics/media/initialized-info")
-def get_media_initialized_info_api(user_id: str):
+def get_media_initialized_info_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.initialized_info(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.initialized_info(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/now-play-time")
-def get_media_now_play_time_api(user_id: str):
+def get_media_now_play_time_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.now_play_time(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.now_play_time(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/play-pause-time-interval")
-def get_media_play_pause_time_interval_api(user_id: str):
+def get_media_play_pause_time_interval_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.play_pause_time_interval(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.play_pause_time_interval(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/seeked-time-interval")
-def get_media_seeked_time_interval_api(user_id: str):
+def get_media_seeked_time_interval_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.seeked_time_interval(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.seeked_time_interval(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/completed-time-interval")
-def get_media_completed_time_interval_api(user_id: str):
+def get_media_completed_time_interval_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.completed_time_interval(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.completed_time_interval(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/terminated-time-interval")
-def get_media_terminated_time_interval_api(user_id: str):
+def get_media_terminated_time_interval_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.terminated_time_interval(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.terminated_time_interval(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/media/interacted-time-interval")
-def get_media_interacted_time_interval_api(user_id: str):
+def get_media_interacted_time_interval_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return media.interacted_time_interval(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = media.interacted_time_interval(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -626,10 +756,13 @@ def get_assessment_extensions_api(user_id: str):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/assessment/interaction")
-def get_assessment_interaction_api(user_id: str):
+def get_assessment_interaction_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return assessment.interaction(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = assessment.interaction(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -647,15 +780,44 @@ def get_assessment_efficiency_api(user_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# ==============================================================================
-# NAVIGATION PROFILE ENDPOINTS
-# ==============================================================================
+@app.get("/api/v1/analytics/media/frustration")
+def get_media_frustration_api(user_id: List[str] = Query(...)):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            from xapi_tools.utils.pandas_helper import dict_to_rows
+            rows = dict_to_rows(dataset)
+            res = media.detect_frustration(rows)
+            # Group by user_id to prevent key collision (e.g. default_reg)
+            all_results[uid] = res
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/analytics/navigation/churn")
+def get_navigation_churn_api(user_id: List[str] = Query(...)):
+    try:
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            from xapi_tools.utils.pandas_helper import dict_to_rows
+            rows = dict_to_rows(dataset)
+            res = navigation.predict_churn(rows)
+            # Group by user_id to prevent key collision (e.g. default_session)
+            all_results[uid] = res
+        return all_results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/navigation/ratio")
-def get_navigation_ratio_api(user_id: str):
+def get_navigation_ratio_api(user_id: List[str] = Query(...)):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return navigation.navigation_ratio(dataset)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = navigation.navigation_ratio(dataset)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -664,18 +826,24 @@ def get_navigation_ratio_api(user_id: str):
 # ==============================================================================
 
 @app.get("/api/v1/analytics/applied/assessment-grade-history")
-def get_assessment_grade_history_api(user_id: str, grade: str):
+def get_assessment_grade_history_api(user_id: List[str] = Query(...), grade: str = "5"):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.assessment_grade_history(dataset, grade)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = applied.assessment_grade_history(dataset, grade)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/v1/analytics/applied/subject-correct-rate")
-def get_subject_correct_rate_api(user_id: str, grade: str, subject: str):
+def get_subject_correct_rate_api(user_id: List[str] = Query(...), grade: str = "5", subject: str = "수학"):
     try:
-        dataset = _get_user_dataset_dict(user_id)
-        return applied.subject_correct_rate(dataset, grade, subject)
+        all_results = {}
+        for uid in user_id:
+            dataset = _get_user_dataset_dict(uid)
+            all_results[uid] = applied.subject_correct_rate(dataset, grade, subject)
+        return all_results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -770,16 +938,17 @@ def normalize_statement(req: NormalizeRequest):
 @app.get("/", response_class=HTMLResponse)
 def serve_sandbox_ui(response: Response):
     """
-    Dynamically loads and serves the interactive sandbox UI from live_sandbox.html.
+    Dynamically loads and serves the interactive sandbox UI from sandbox/live_sandbox.html.
     """
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     response.headers["Pragma"] = "no-cache"
     response.headers["Expires"] = "0"
     try:
-        path = "live_sandbox.html"
+        # Try subdirectory path first
+        path = os.path.join("sandbox", "live_sandbox.html")
         if not os.path.exists(path):
-            # Fallback pathing
-            path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "live_sandbox.html")
+            # Fallback for different contexts
+            path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "sandbox", "live_sandbox.html")
             
         with open(path, "r", encoding="utf-8") as f:
             return f.read()

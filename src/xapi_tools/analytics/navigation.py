@@ -13,7 +13,7 @@ def verb_count(name: str) -> int:
     Example: verb_count(name="김레나")
     """
     # navigated verb
-    statements = get_db_statements(name, "navigated", db_name="lrs_test")
+    statements = get_db_statements(name, "navigated", db_name="lrs")
     return len(statements)
 
 def navigation_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:
@@ -295,47 +295,53 @@ def predict_churn(statements: Iterable[Dict[str, Any]]) -> Dict[str, Dict[str, A
     stmts_list = list(statements)
     
     def get_ts(s):
-        ts_str = s.get("timestamp", "")
-        if not ts_str: return datetime.min
+        # Support both 'timestamp' (string/datetime) and nested raw structure
+        raw_stmt = s.get("statement", s)
+        ts = raw_stmt.get("timestamp", s.get("timestamp"))
+        if not ts: return datetime.min
+        if isinstance(ts, datetime): return ts
         try:
-            return datetime.fromisoformat(ts_str.replace("Z", "+00:00"))
+            return datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
         except:
             return datetime.min
             
     stmts_list.sort(key=get_ts)
     
-    session_events = {} # session-id -> list of (ts, verb_id)
+    session_events = {} # session-id -> list of (ts, verb_id/category)
     churn_results = {}
     
-    for stmt in stmts_list:
-        session_id = _get_session_id(stmt)
-        ts = _parse_timestamp(stmt)
-        if not ts:
-            continue
-            
-        verb_id = stmt.get("verb", {}).get("id", "").lower()
+    for s in stmts_list:
+        raw_stmt = s.get("statement", s)
+        session_id = _get_session_id(raw_stmt)
+        ts = get_ts(s)
+        
+        # Support both raw verb ID and normalized verb_category
+        verb_category = s.get("verb_category")
+        verb_id = raw_stmt.get("verb", {}).get("id", "").lower()
+        
+        is_navigated = (verb_category == "navigated") or ("navigated" in verb_id)
         
         if session_id not in session_events:
             session_events[session_id] = []
         
         # 1. Idle 상태 체크 (이전 이벤트와의 간격)
         if session_events[session_id]:
-            prev_ts, prev_verb = session_events[session_id][-1]
+            prev_ts, prev_is_nav = session_events[session_id][-1]
             diff = (ts - prev_ts).total_seconds()
             
-            if "navigated" in prev_verb and diff > 30:
+            if prev_is_nav and diff > 30:
                 if session_id not in churn_results:
                     churn_results[session_id] = {"churn_probability": 0.0, "reasons": []}
                 if "Idle state detected" not in churn_results[session_id]["reasons"]:
                     churn_results[session_id]["churn_probability"] += 0.6
                     churn_results[session_id]["reasons"].append("Idle state detected")
 
-        session_events[session_id].append((ts, verb_id))
+        session_events[session_id].append((ts, is_navigated))
         
         # 2. 무의미한 탐색 체크 (최근 10초 이내 navigated 빈도)
-        if "navigated" in verb_id:
-            recent_navs = [t for t, v in session_events[session_id] 
-                          if "navigated" in v and (ts - t).total_seconds() <= 10]
+        if is_navigated:
+            recent_navs = [t for t, is_nav in session_events[session_id] 
+                          if is_nav and (ts - t).total_seconds() <= 10]
             
             if len(recent_navs) >= 3:
                 if session_id not in churn_results:

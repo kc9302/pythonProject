@@ -126,7 +126,7 @@ def get_platform_usage(statements: Iterable[Dict[str, Any]]) -> Dict[str, int]:
 # ==============================================================================
 
 def verb_count(name: str, verb: str) -> int:
-    statements = get_db_statements(name, verb, db_name="lrs_test")
+    statements = get_db_statements(name, verb, db_name="lrs")
     return len(statements)
 
 def time_list(dataset: Dict[str, Dict[int, Any]]) -> Dict[str, Dict[int, Any]]:

@@ -1328,6 +1328,11 @@
                             <div class="spec-card-desc">특정 미디어 콘텐츠(activity_id) 구간별 pause 및 seek 발생 빈도를 5초 간격으로 분석하여 인지 병목 구간을 진단합니다.</div>
                             <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: list</span></div>
                         </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">detect_frustration <span class="mini-badge mini-badge-success">Applied</span></div>
+                            <div class="spec-card-desc">미디어 학습 좌절 지수(Frustration Score) 분석. [기준: 0~30 안전🟢 | 31~50 주의🟡 - 배속 변경 | 51~80 경계🟠 - 잦은 정지/되감기 | 81~100 위험🔴 - 복합 피로/이탈].</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
                     </div>
 
                     <div class="spec-section-subtitle">
@@ -1400,6 +1405,11 @@
                             <div class="spec-card-title">navigation_ratio <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저가 이동한 각 메뉴별(object.id별) 누적 체류 시간을 계산하여 통계화합니다.</div>
                             <div class="spec-card-meta"><span class="mini-badge">Input: dataset</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">predict_churn <span class="mini-badge mini-badge-success">Applied</span></div>
+                            <div class="spec-card-desc">세션 이탈 경보(Churn Probability) 분석. [기준: 0.0~0.30 안전🟢 | 0.31~0.60 주의🟡 - Idle 대기 감지 | 0.61~0.80 경계🟠 - 무의미한 반복 이동 | 0.81~0.95 위험🔴 - 이탈 확실].</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                     </div>
                 </div>
@@ -2569,7 +2579,11 @@ Authorization: Bearer {{client_id}}
             "activity_id": ["https://www.toctocmath.kr/VCS-1-1", "https://www.toctocmath.kr/VCS-1-6"],
             "verb": ["played", "paused", "completed", "interacted", "initialized"],
             "grade": ["5", "6"],
-            "subject": ["수학", "과학"],
+            "subject": ["수학"],
+            "semester": ["1학기", "2학기"],
+            "chapter": ["분수의 곱셈", "다각형의 둘레와 넓이", "약수와 배수", "생명과학", "지구과학", "물리법칙", "물질과 에너지"],
+            "tag": ["통분", "기본개념", "심화풀이", "식물의 구조", "태양계", "전기회로"],
+            "assessment_type": ["차시평가", "단원평가", "형성평가"],
             "dataset": ["lrs_statements_v1"]
         };
 
@@ -2586,6 +2600,7 @@ Authorization: Bearer {{client_id}}
             "terminated_time_interval": ["user_id"],
             "interacted_time_interval": ["user_id"],
             "media_heatmap": ["activity_id"],
+            "detect_frustration": ["user_id"],
             // Session Profile
             "time_list": ["user_id"],
             // Assessment Profile
@@ -2597,13 +2612,17 @@ Authorization: Bearer {{client_id}}
             // Navigation Profile
             "navigation_list": ["user_id"],
             "navigation_ratio": ["user_id"],
+            "predict_churn": ["user_id"],
             // Applied APIs
             "assessment_history": ["user_id"],
             "assessment_grade_history": ["user_id", "grade"],
             "subject_correct_rate": ["user_id", "grade", "subject"],
+            "assessment_tag_correct_rate": ["user_id", "grade", "subject", "tag"],
             "wrong_answers": ["user_id"],
             "wrong_answers_test": ["user_id", "subject"],
-            "wrong_answers_chapter_test": ["user_id", "grade", "subject"]
+            "wrong_answers_chapter_test": ["user_id", "grade", "subject", "semester", "chapter"],
+            "wrong_answers_tag": ["user_id", "tag"],
+            "wrong_answers_assessment_type": ["user_id", "assessment_type"]
         };
 
         // Open Modal Dialog
@@ -2731,6 +2750,159 @@ Authorization: Bearer {{client_id}}
                     results.push({ ...res, "total": vault.solved_question_count.total, "list": vault.solved_question_count.list });
                 } else if (apiKey === 'assessment_history') {
                     results.push({ ...res, "correct_rate": vault.assessment_history.overall_correct_rate });
+                } else if (apiKey === 'detect_frustration') {
+                    let regId = "reg-default-uuid";
+                    let fScore = 0;
+                    let fReasons = [];
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { regId = "22358138-0b3b-4dbc-b6bc-52b6b2fb7326"; fScore = 80; fReasons = ["Extreme play speed", "High frequency of actions"]; }
+                    else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { regId = "54eb683e-da84-482a-bc91-2ba5fa59b201"; fScore = 50; fReasons = ["Extreme play speed"]; }
+                    else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { regId = "8fa492c1-d41a-493f-cc91-92fa5f80b2a3"; fScore = 30; fReasons = ["High frequency of actions"]; }
+                    const mockRes = {}; mockRes[regId] = { "frustration_score": fScore, "reasons": fReasons };
+                    results.push(mockRes);
+                } else if (apiKey === 'predict_churn') {
+                    let sessId = "session-default-uuid";
+                    let cProb = 0.1;
+                    let cReasons = [];
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { sessId = "0a2aa73e-6621-4512-9947-dcf1679151a6"; cProb = 0.95; cReasons = ["Idle state detected (30s+)", "Meaningless navigation"]; }
+                    else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { sessId = "31b5fa8c-da54-4f8a-9df4-fa5fde24a2c5"; cProb = 0.40; cReasons = ["Meaningless navigation"]; }
+                    else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { sessId = "s73377c78e1b6a32b403591fe58c0dae-91b517b3d5ed43da9df45fa6f85ecde506a219e429c6973a3752f58c427f284fcd"; cProb = 0.75; cReasons = ["Idle state detected (30s+)"]; }
+                    const mockRes = {}; mockRes[sessId] = { "churn_probability": cProb, "reasons": cReasons };
+                    results.push(mockRes);
+                } else {
+                    results.push({ ...res, "api_name": apiKey, "simulated": true });
+                }
+            });
+            return results.length === 1 ? results[0] : { "batch_mode": true, "results": results };
+        }
+
+        // Run Modal API Execution
+        async function runModalApi() {
+            const apiKey = currentActiveApi;
+            const statusEl = document.getElementById('modal-result-status');
+            const badgeEl = document.getElementById('modal-result-badge');
+            const codeEl = document.getElementById('modal-result-code');
+
+            statusEl.textContent = '⚡ 로컬 수치 연산 분석 중...';
+            badgeEl.textContent = 'PROCESSING';
+            badgeEl.className = 'result-badge result-badge-fallback';
+            badgeEl.style.display = 'inline-block';
+            codeEl.textContent = `// Standardizing analytics canonical parameters...\n// Performing isolated local simulation...`;
+            codeEl.style.color = '#fbbf24';
+
+            // Gather inputs
+            const params = {};
+            const neededParams = API_PARAMS_MAP[apiKey] || [];
+            
+            neededParams.forEach(paramKey => {
+                const checkedInputs = document.querySelectorAll(`input[name="param-${paramKey}"]:checked`);
+                params[paramKey] = Array.from(checkedInputs).map(i => i.value);
+            });
+
+            // High fidelity Mock simulator execution (No fetch, 100ms micro motion delay)
+            const resultData = simulateMockData(apiKey, params);
+            
+            setTimeout(() => {
+                statusEl.textContent = '🟠 [OFFLINE SUCCESS] Sandbox Engine 수치 연산 완료';
+                badgeEl.textContent = 'SIM SUCCESS';
+                badgeEl.className = 'result-badge result-badge-fallback';
+                codeEl.textContent = JSON.stringify(resultData, null, 2);
+                codeEl.style.color = '#fbbf24';
+            }, 100); // UI micro delay for satisfaction
+        }
+
+        // --- HIGH-FIDELITY DETERMINISTIC DATA VAULT ---
+        const DETERMINISTIC_VAULT = {
+            "11572119-e321-4bc2-b57c-4189e5f80936": {
+                "name": "김태윤",
+                "verb_count": { "played": 12175, "paused": 842, "completed": 56, "interacted": 15402 },
+                "watched_media_count": { "video_count": 842, "audio_count": 56, "total_count": 898 },
+                "solved_question_count": { "total": 442, "list": ["Q-MATH-511", "Q-MATH-512", "Q-MATH-515"] },
+                "assessment_history": { "overall_correct_rate": 88.5, "total_questions": 450, "solved_questions": 442 },
+                "subject_correct_rate": { "수학": 94.2, "과학": 92.1 },
+                "wrong_answers": { "total_count": 2, "list": [{ "id": "MATH-05-103", "name": "진분수와 자연수의 곱셈-1" }] }
+            },
+            "50834687-32e4-477b-bff3-da98a2b8dc1c": {
+                "name": "서의진",
+                "verb_count": { "played": 6350, "paused": 420, "completed": 12, "interacted": 8102 },
+                "watched_media_count": { "video_count": 420, "audio_count": 12, "total_count": 432 },
+                "solved_question_count": { "total": 210, "list": ["Q-MATH-501", "Q-MATH-505"] },
+                "assessment_history": { "overall_correct_rate": 72.4, "total_questions": 300, "solved_questions": 210 },
+                "subject_correct_rate": { "수학": 75.6, "과학": 68.2 },
+                "wrong_answers": { "total_count": 15, "list": [{ "id": "MATH-05-201", "name": "도형의 성질 기초" }] }
+            },
+            "445d358b-322d-4934-8ba3-248a8d76a3cf": {
+                "name": "김지환",
+                "verb_count": { "played": 4944, "paused": 115, "completed": 8, "interacted": 5600 },
+                "watched_media_count": { "video_count": 115, "audio_count": 8, "total_count": 123 },
+                "solved_question_count": { "total": 85, "list": ["Q-MATH-401"] },
+                "assessment_history": { "overall_correct_rate": 45.1, "total_questions": 200, "solved_questions": 85 },
+                "subject_correct_rate": { "수학": 42.5, "과학": 48.9 },
+                "wrong_answers": { "total_count": 42, "list": [{ "id": "MATH-04-101", "name": "기초 연산 훈련" }] }
+            }
+        };
+
+        // Dynamic High-Fidelity Mock Database Simulator
+        function simulateMockData(apiKey, params) {
+            const userIds = params.user_id && params.user_id.length > 0 ? params.user_id : ["11572119-e321-4bc2-b57c-4189e5f80936"];
+            const verbs = params.verb && params.verb.length > 0 ? params.verb : ["played"];
+            const results = [];
+            
+            userIds.forEach(uid => {
+                const vault = DETERMINISTIC_VAULT[uid] || { name: "Unknown", verb_count: {}, watched_media_count: { total_count: 0 } };
+                let res = { "user_id": uid, "user_name": vault.name };
+
+                if (apiKey === 'verb_count') {
+                    verbs.forEach(v => { results.push({ ...res, "verb": v, "result": vault.verb_count[v] || 150 }); });
+                } else if (apiKey === 'watched_media_count') {
+                    results.push({ ...res, "selected_verbs": verbs, "counts": vault.watched_media_count });
+                } else if (apiKey === 'solved_question_count') {
+                    results.push({ ...res, "total": vault.solved_question_count.total, "list": vault.solved_question_count.list });
+                } else if (apiKey === 'assessment_history') {
+                    results.push({ ...res, "correct_rate": vault.assessment_history.overall_correct_rate });
+                } else if (apiKey === 'detect_frustration') {
+                    let regId = "reg-default-uuid";
+                    let fScore = 0;
+                    let fReasons = [];
+                    
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { // 김태윤 (위험)
+                        regId = "22358138-0b3b-4dbc-b6bc-52b6b2fb7326";
+                        fScore = 80;
+                        fReasons = ["Extreme play speed", "High frequency of actions"];
+                    } else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { // 서의진 (주의)
+                        regId = "54eb683e-da84-482a-bc91-2ba5fa59b201";
+                        fScore = 50;
+                        fReasons = ["Extreme play speed"];
+                    } else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { // 김지환 (주의)
+                        regId = "8fa492c1-d41a-493f-cc91-92fa5f80b2a3";
+                        fScore = 30;
+                        fReasons = ["High frequency of actions"];
+                    }
+                    
+                    const mockRes = {};
+                    mockRes[regId] = { "frustration_score": fScore, "reasons": fReasons };
+                    results.push(mockRes);
+                } else if (apiKey === 'predict_churn') {
+                    let sessId = "session-default-uuid";
+                    let cProb = 0.1;
+                    let cReasons = [];
+                    
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { // 김태윤 (위험)
+                        sessId = "0a2aa73e-6621-4512-9947-dcf1679151a6";
+                        cProb = 0.95;
+                        cReasons = ["Idle state detected (30s+)", "Meaningless navigation"];
+                    } else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { // 서의진 (주의)
+                        sessId = "31b5fa8c-da54-4f8a-9df4-fa5fde24a2c5";
+                        cProb = 0.40;
+                        cReasons = ["Meaningless navigation"];
+                    } else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { // 김지환 (경계)
+                        sessId = "s73377c78e1b6a32b403591fe58c0dae-91b517b3d5ed43da9df45fa6f85ecde506a219e429c6973a3752f58c427f284fcd";
+                        cProb = 0.75;
+                        cReasons = ["Idle state detected (30s+)"];
+                    }
+                    
+                    const mockRes = {};
+                    mockRes[sessId] = { "churn_probability": cProb, "reasons": cReasons };
+                    results.push(mockRes);
                 } else {
                     results.push({ ...res, "api_name": apiKey, "simulated": true });
                 }

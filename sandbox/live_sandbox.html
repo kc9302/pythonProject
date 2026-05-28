@@ -1304,6 +1304,11 @@
                             <div class="spec-card-desc">특정 미디어 콘텐츠(activity_id) 구간별 pause 및 seek 발생 빈도를 5초 간격으로 분석하여 인지 병목 구간을 진단합니다.</div>
                             <div class="spec-card-meta"><span class="mini-badge">Input: activity_id</span><span class="mini-badge">Return: list</span></div>
                         </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">detect_frustration <span class="mini-badge mini-badge-success">Applied</span></div>
+                            <div class="spec-card-desc">미디어 학습 좌절 지수(Frustration Score) 분석. [기준: 0~30 안전🟢 | 31~50 주의🟡 - 배속 변경 | 51~80 경계🟠 - 잦은 정지/되감기 | 81~100 위험🔴 - 복합 피로/이탈].</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
                     </div>
 
                     <div class="spec-section-subtitle">
@@ -1376,6 +1381,11 @@
                             <div class="spec-card-title">navigation_ratio <span class="mini-badge mini-badge-primary">Basic</span></div>
                             <div class="spec-card-desc">유저가 이동한 각 메뉴별(object.id별) 누적 체류 시간을 계산하여 통계화합니다.</div>
                             <div class="spec-card-meta"><span class="mini-badge">Input: dataset</span><span class="mini-badge">Return: dict</span></div>
+                        </div>
+                        <div class="spec-card">
+                            <div class="spec-card-title">predict_churn <span class="mini-badge mini-badge-success">Applied</span></div>
+                            <div class="spec-card-desc">세션 이탈 경보(Churn Probability) 분석. [기준: 0.0~0.30 안전🟢 | 0.31~0.60 주의🟡 - Idle 대기 감지 | 0.61~0.80 경계🟠 - 무의미한 반복 이동 | 0.81~0.95 위험🔴 - 이탈 확실].</div>
+                            <div class="spec-card-meta"><span class="mini-badge">Input: user_id</span><span class="mini-badge">Return: dict</span></div>
                         </div>
                     </div>
                 </div>
@@ -1640,6 +1650,11 @@
     </main>
 
     <script>
+        // Determine API Base URL dynamically to support running from arbitrary ports
+        const API_BASE = (window.location.protocol === 'file:' || window.location.hostname === '') 
+            ? 'http://localhost:8080' 
+            : window.location.origin;
+
         // Global error logger for sandbox debugging
         window.onerror = function(message, source, lineno, colno, error) {
             const viewer = document.getElementById('canonical-viewer');
@@ -2192,7 +2207,7 @@
             `;
             
             try {
-                const res = await fetch('http://localhost:8000/api/v1/diagnostics/profile');
+                const res = await fetch(`${API_BASE}/api/v1/diagnostics/profile`);
                 if (!res.ok) throw new Error('Network response not ok');
                 const data = await res.json();
                 
@@ -2464,7 +2479,11 @@ Authorization: Bearer {{client_id}}
             "activity_id": ["https://www.toctocmath.kr/VCS-1-1", "https://www.toctocmath.kr/VCS-1-6"],
             "verb": ["played", "paused", "completed", "interacted", "initialized"],
             "grade": ["5", "6"],
-            "subject": ["수학", "과학"],
+            "subject": ["수학"],
+            "semester": ["1학기", "2학기"],
+            "chapter": ["분수의 곱셈", "다각형의 둘레와 넓이", "약수와 배수"],
+            "tag": ["통분", "기본개념", "심화풀이"],
+            "assessment_type": ["차시평가", "단원평가", "형성평가"],
             "dataset": ["lrs_statements_v1"]
         };
 
@@ -2481,6 +2500,7 @@ Authorization: Bearer {{client_id}}
             "terminated_time_interval": ["user_id"],
             "interacted_time_interval": ["user_id"],
             "media_heatmap": ["activity_id"],
+            "detect_frustration": ["user_id"],
             // Session Profile
             "time_list": ["user_id"],
             // Assessment Profile
@@ -2492,13 +2512,17 @@ Authorization: Bearer {{client_id}}
             // Navigation Profile
             "navigation_list": ["user_id"],
             "navigation_ratio": ["user_id"],
+            "predict_churn": ["user_id"],
             // Applied APIs
             "assessment_history": ["user_id"],
             "assessment_grade_history": ["user_id", "grade"],
             "subject_correct_rate": ["user_id", "grade", "subject"],
+            "assessment_tag_correct_rate": ["user_id", "grade", "subject", "tag"],
             "wrong_answers": ["user_id"],
             "wrong_answers_test": ["user_id", "subject"],
-            "wrong_answers_chapter_test": ["user_id", "grade", "subject"]
+            "wrong_answers_chapter_test": ["user_id", "grade", "subject", "semester", "chapter"],
+            "wrong_answers_tag": ["user_id", "tag"],
+            "wrong_answers_assessment_type": ["user_id", "assessment_type"]
         };
 
         // Open Modal Dialog
@@ -2626,6 +2650,50 @@ Authorization: Bearer {{client_id}}
                     results.push({ ...res, "total": vault.solved_question_count.total, "list": vault.solved_question_count.list });
                 } else if (apiKey === 'assessment_history') {
                     results.push({ ...res, "correct_rate": vault.assessment_history.overall_correct_rate });
+                } else if (apiKey === 'detect_frustration') {
+                    let regId = "reg-default-uuid";
+                    let fScore = 0;
+                    let fReasons = [];
+                    
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { // 김태윤 (위험)
+                        regId = "22358138-0b3b-4dbc-b6bc-52b6b2fb7326";
+                        fScore = 80;
+                        fReasons = ["Extreme play speed", "High frequency of actions"];
+                    } else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { // 서의진 (주의)
+                        regId = "54eb683e-da84-482a-bc91-2ba5fa59b201";
+                        fScore = 50;
+                        fReasons = ["Extreme play speed"];
+                    } else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { // 김지환 (주의)
+                        regId = "8fa492c1-d41a-493f-cc91-92fa5f80b2a3";
+                        fScore = 30;
+                        fReasons = ["High frequency of actions"];
+                    }
+                    
+                    const mockRes = {};
+                    mockRes[regId] = { "frustration_score": fScore, "reasons": fReasons };
+                    results.push(mockRes);
+                } else if (apiKey === 'predict_churn') {
+                    let sessId = "session-default-uuid";
+                    let cProb = 0.1;
+                    let cReasons = [];
+                    
+                    if (uid === "11572119-e321-4bc2-b57c-4189e5f80936") { // 김태윤 (위험)
+                        sessId = "0a2aa73e-6621-4512-9947-dcf1679151a6";
+                        cProb = 0.95;
+                        cReasons = ["Idle state detected (30s+)", "Meaningless navigation"];
+                    } else if (uid === "50834687-32e4-477b-bff3-da98a2b8dc1c") { // 서의진 (주의)
+                        sessId = "31b5fa8c-da54-4f8a-9df4-fa5fde24a2c5";
+                        cProb = 0.40;
+                        cReasons = ["Meaningless navigation"];
+                    } else if (uid === "445d358b-322d-4934-8ba3-248a8d76a3cf") { // 김지환 (경계)
+                        sessId = "s73377c78e1b6a32b403591fe58c0dae-91b517b3d5ed43da9df45fa6f85ecde506a219e429c6973a3752f58c427f284fcd";
+                        cProb = 0.75;
+                        cReasons = ["Idle state detected (30s+)"];
+                    }
+                    
+                    const mockRes = {};
+                    mockRes[sessId] = { "churn_probability": cProb, "reasons": cReasons };
+                    results.push(mockRes);
                 } else {
                     results.push({ ...res, "api_name": apiKey, "simulated": true });
                 }
@@ -2662,8 +2730,8 @@ Authorization: Bearer {{client_id}}
                 const isLocalFile = window.location.protocol === 'file:';
                 
                 const controller = new AbortController();
-                // Shorter timeout for local files to avoid "signal aborted" frustration
-                const timeoutId = setTimeout(() => controller.abort(), isLocalFile ? 500 : 1500); 
+                // 3초(로컬) 및 5초(웹)의 넉넉한 타임아웃을 설정하여 대량 DB 쿼리가 중간에 끊기지 않도록 보장
+                const timeoutId = setTimeout(() => controller.abort(), isLocalFile ? 3000 : 5000); 
                 
                 // --- MULTI-PARAMETER URL BUILDING ---
                 const buildQuery = (key, values) => {
@@ -2671,18 +2739,69 @@ Authorization: Bearer {{client_id}}
                     return values.map(v => `${key}=${encodeURIComponent(v)}`).join('&');
                 };
 
-                let fetchUrl = `http://localhost:8000/api/v1/analytics/applied/${apiKey.replace(/_/g, '-')}`;
+                let fetchUrl = '';
                 
-                // Custom routing overrides for all FastAPI endpoints
+                const mediaApis = [
+                    'watched_media_list', 'watched_media_count', 'initialized_info', 
+                    'now_play_time', 'play_pause_time_interval', 'seeked_time_interval', 
+                    'completed_time_interval', 'terminated_time_interval', 'interacted_time_interval', 
+                    'media_heatmap'
+                ];
+                const sessionApis = ['time_list'];
+                const assessmentApis = [
+                    'solved_question_count', 'attempt_question_count', 'extensions', 
+                    'interaction', 'assessment_efficiency'
+                ];
+                const navigationApis = ['navigation_list', 'navigation_ratio'];
+                
                 if (apiKey === 'verb_count') {
                     const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
                     const vPart = buildQuery('verb_category', params.verb || ['played']);
-                    fetchUrl = `http://localhost:8000/api/v1/analytics/activities?${uPart}&${vPart}`;
-                } else {
+                    fetchUrl = `${API_BASE}/api/v1/analytics/activities?${uPart}&${vPart}`;
+                } else if (apiKey === 'detect_frustration') {
                     const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
-                    fetchUrl = `${fetchUrl}?${uPart}`;
+                    fetchUrl = `${API_BASE}/api/v1/analytics/media/frustration?${uPart}`;
+                } else if (apiKey === 'predict_churn') {
+                    const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
+                    fetchUrl = `${API_BASE}/api/v1/analytics/navigation/churn?${uPart}`;
+                } else {
+                    let category = 'applied';
+                    let endpointName = apiKey.replace(/_/g, '-');
+                    
+                    if (apiKey === 'watched_media_list') endpointName = 'watched-list';
+                    else if (apiKey === 'watched_media_count') endpointName = 'watched-count';
+                    else if (apiKey === 'assessment_efficiency') endpointName = 'efficiency';
+                    else if (apiKey === 'media_heatmap') endpointName = 'heatmap';
+                    else if (apiKey === 'navigation_list') endpointName = 'list';
+                    else if (apiKey === 'navigation_ratio') endpointName = 'ratio';
+                    
+                    if (mediaApis.includes(apiKey)) {
+                        category = 'media';
+                    } else if (sessionApis.includes(apiKey)) {
+                        category = 'session';
+                    } else if (assessmentApis.includes(apiKey)) {
+                        category = 'assessment';
+                    } else if (navigationApis.includes(apiKey)) {
+                        category = 'navigation';
+                    }
+                    
+                    fetchUrl = `${API_BASE}/api/v1/analytics/${category}/${endpointName}`;
+                    
+                    const uPart = buildQuery('user_id', params.user_id || ['11572119-e321-4bc2-b57c-4189e5f80936']);
+                    const actPart = buildQuery('activity_id', params.activity_id || ['https://www.toctocmath.kr/VCS-1-1']);
+                    
+                    if (apiKey === 'media_heatmap') {
+                        fetchUrl = `${fetchUrl}?${actPart}`;
+                    } else {
+                        fetchUrl = `${fetchUrl}?${uPart}`;
+                    }
+                    
                     if (params.grade) fetchUrl += `&${buildQuery('grade', params.grade.map(g => g.replace('학년', '')))}`;
                     if (params.subject) fetchUrl += `&${buildQuery('subject', params.subject)}`;
+                    if (params.semester) fetchUrl += `&${buildQuery('semester', params.semester)}`;
+                    if (params.chapter) fetchUrl += `&${buildQuery('chapter', params.chapter)}`;
+                    if (params.tag) fetchUrl += `&${buildQuery('tag', params.tag)}`;
+                    if (params.assessment_type) fetchUrl += `&${buildQuery('assessment_type', params.assessment_type)}`;
                 }
 
                 const response = await fetch(fetchUrl, {

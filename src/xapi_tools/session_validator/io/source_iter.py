@@ -83,4 +83,4 @@ def iter_mongo(
             yield doc
     finally:
         cursor.close()
-        client.close()
+        # client.close() removed for connection pooling

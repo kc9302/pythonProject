@@ -92,7 +92,7 @@ def iter_mongo_verb(
             yield doc
     finally:
         cursor.close()
-        client.close()
+        # client.close() removed for connection pooling
 
 def yyyymm(dt: datetime) -> str:
     return f"{dt.year:04d}-{dt.month:02d}"
@@ -186,4 +186,4 @@ def iter_mongo_verb_monthwise(
             dt = (time.perf_counter() - t0) * 1000
             log.debug(f"[FETCH:{mm}] 완료 - {count}건, {dt:.1f}ms")
     finally:
-        client.close()
+        # client.close() removed for connection pooling
